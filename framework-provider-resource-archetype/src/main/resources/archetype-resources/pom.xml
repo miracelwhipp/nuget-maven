@@ -4,20 +4,26 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>com.github.cs</groupId>
-	<artifactId>cs-maven</artifactId>
-	<version>1.0-SNAPSHOT</version>
-	<packaging>pom</packaging>
+	<groupId>${groupId}</groupId>
+	<artifactId>${artifactId}</artifactId>
+	<version>${version}</version>
+
+	<dependencies>
+		<dependency>
+			<groupId>com.github.resources</groupId>
+			<artifactId>resource-bunch-client</artifactId>
+			<version>1.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>com.github.cs</groupId>
+			<artifactId>framework-provider-api</artifactId>
+			<version>1.0-SNAPSHOT</version>
+		</dependency>
+	</dependencies>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
-
-	<modules>
-		<module>cs-maven-plugin</module>
-		<module>framework-provider-api</module>
-		<module>framework-provider-resource-archetype</module>
-	</modules>
 
 	<build>
 		<pluginManagement>
@@ -34,6 +40,25 @@
 			</plugins>
 		</pluginManagement>
 		<plugins>
+			<plugin>
+				<groupId>com.github.resources</groupId>
+				<artifactId>resource-bunch-maven-plugin</artifactId>
+				<version>1.0-SNAPSHOT</version>
+				<executions>
+					<execution>
+						<id>generate-framework-resource</id>
+						<goals>
+							<goal>create</goal>
+						</goals>
+						<configuration>
+							<resources>
+								<framework>${project.basedir}/src/main/resource-bunch/framework</framework>
+								<n-unit>${project.basedir}/src/main/resource-bunch/n-unit</n-unit>
+							</resources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
