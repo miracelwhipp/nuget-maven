@@ -4,12 +4,12 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.Iterator;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Map;
-import java.util.ServiceLoader;
 
 /**
  * This class interfaces the command line to invoke the c# compiler.
@@ -73,7 +73,7 @@ public class CSharpCompiler {
 
 			for (File referenceFile : referenceFiles) {
 
-				processBuilder.command().add("/reference:" + referenceFile);
+				processBuilder.command().add("/reference:" + referenceFile.getAbsolutePath());
 			}
 
 			logger.debug("executing csc:");
@@ -82,7 +82,6 @@ public class CSharpCompiler {
 			}
 
 			processBuilder.directory(workingDirectory);
-//		processBuilder.environment().clear();
 			processBuilder.inheritIO();
 
 
@@ -96,6 +95,7 @@ public class CSharpCompiler {
 
 				throw new MojoFailureException("c# compiler finished with exit value " + exitValue);
 			}
+
 
 			return targetFile;
 

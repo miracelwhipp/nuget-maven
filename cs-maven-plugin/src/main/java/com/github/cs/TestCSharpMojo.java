@@ -97,22 +97,7 @@ public class TestCSharpMojo extends AbstractNetMojo {
 				builder.command().add("\"" + condition + "\"");
 			}
 
-//			String pathVariable = System.getenv(ENV_PATH);
-//
-//			if (!pathVariable.isEmpty()) {
-//
-//				pathVariable += ";";
-//			}
-//
-//			pathVariable += ".";
-//			pathVariable += ";" + frameworkProvider.getNUnitLibrary().getParent();
-//			pathVariable += ";" + frameworkProvider.getMsCoreLibrary().getParent();
-//			pathVariable += ";" + frameworkProvider.getNUnitRunner().getParent();
-//			pathVariable += ";" + workingDirectory;
-
 			copyToLib(frameworkProvider.getNUnitLibrary());
-//			copyToLib(frameworkProvider.getMsCoreLibrary());
-//			copyToLib(frameworkProvider.getNUnitRunner());
 
 			List<File> testDependencies = getTestDependencies();
 
@@ -120,14 +105,6 @@ public class TestCSharpMojo extends AbstractNetMojo {
 
 				copyToLib(testDependency);
 			}
-
-//			for (File testDependency : testDependencies) {
-//
-//				pathVariable += ";" + testDependency.getParent();
-//			}
-//
-//			getLog().debug("setting path environment variable of sub process to " + pathVariable);
-//			builder.environment().put(ENV_PATH, pathVariable);
 
 			builder.inheritIO();
 
