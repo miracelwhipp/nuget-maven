@@ -69,6 +69,7 @@ public class TestCSharpMojo extends AbstractNetMojo {
 			if (skipTests) {
 
 				getLog().info("The tests are skipped.");
+				
 				return;
 			}
 
