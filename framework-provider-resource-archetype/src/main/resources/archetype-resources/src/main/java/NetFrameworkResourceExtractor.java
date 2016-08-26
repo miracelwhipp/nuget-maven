@@ -1,4 +1,6 @@
-package ${package}
+package $
+
+import java.io.File;{package}
 
 import com.github.cs.NetFrameworkProvider;
 import com.github.resource.bunch.ResourceBunchExtractor;
@@ -56,11 +58,11 @@ public class NetFrameworkResourceExtractor implements NetFrameworkProvider {
 	}
 
 	@Override
-	public File getMsCoreLibrary() throws IOException {
+	public File getFrameworkLibraryPath() throws IOException {
 
 		extract();
 
-		return new File(frameworkDirectory, "mscorlib.dll").getAbsoluteFile();
+		return frameworkDirectory.getAbsoluteFile();
 	}
 
 	@Override
