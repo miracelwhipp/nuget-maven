@@ -12,6 +12,15 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -21,6 +30,8 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.DependencyResolutionException;
 import org.eclipse.aether.graph.Dependency;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
 /**
  * This goal executes the test for the c# code with the n-unit-3 console runner.
@@ -35,12 +46,13 @@ import org.eclipse.aether.graph.Dependency;
 public class TestCSharpMojo extends AbstractNetMojo {
 
 	public static final String ENV_PATH = "Path";
-	private static final int BUFFER_SIZE = 128 * 1025;
 
 	private static final Set<String> ALLOWED_SCOPES =
 			Collections.unmodifiableSet(new HashSet<>(Arrays.asList("compile", "provided", "system", "test")));
 
 	private static final String TEST_RESULT_FILE = "TestResult.xml";
+	public static final String TRANSFORMATION_FILE = "nunit-to-junit.xsl";
+	public static final int BUFFER_SIZE = 128 * 1024;
 
 
 	@Parameter(readonly = true, defaultValue = "${project.build.testOutputDirectory}")
@@ -69,11 +81,27 @@ public class TestCSharpMojo extends AbstractNetMojo {
 			if (skipTests) {
 
 				getLog().info("The tests are skipped.");
-				
+
 				return;
 			}
 
 			reportsDirectory.mkdirs();
+
+			try (
+					InputStream source =
+							TestCSharpMojo.class.getClassLoader().getResourceAsStream(TRANSFORMATION_FILE);
+					FileOutputStream target = new FileOutputStream(new File(reportsDirectory, TRANSFORMATION_FILE))
+			) {
+
+				int length = 0;
+				byte[] buffer = new byte[BUFFER_SIZE];
+
+				while ((length = source.read(buffer)) > 0) {
+
+					target.write(buffer, 0, length);
+				}
+			}
+
 
 			File testLibraryFile = new File(workingDirectory, testLibrary);
 
@@ -124,6 +152,8 @@ public class TestCSharpMojo extends AbstractNetMojo {
 				return;
 			}
 
+			transformResultFile();
+
 
 			if (exitValue != 0) {
 
@@ -137,6 +167,35 @@ public class TestCSharpMojo extends AbstractNetMojo {
 			throw new MojoFailureException("unable to run tests", e);
 		}
 
+
+	}
+
+	private void transformResultFile() throws MojoFailureException {
+
+		try {
+
+			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder builder = factory.newDocumentBuilder();
+
+			Document resultDocument = builder.parse(new File(reportsDirectory, TEST_RESULT_FILE));
+
+			// Use a Transformer for output
+			TransformerFactory tFactory = TransformerFactory.newInstance();
+			StreamSource stylesource = new StreamSource(new File(reportsDirectory, TRANSFORMATION_FILE));
+
+			Transformer transformer = tFactory.newTransformer(stylesource);
+
+			DOMSource source = new DOMSource(resultDocument.getDocumentElement());
+			StreamResult result = new StreamResult(new File(reportsDirectory, "result.xml"));
+
+			transformer.setParameter("target-directory", reportsDirectory.getAbsolutePath());
+
+			transformer.transform(source, result);
+
+		} catch (TransformerException | ParserConfigurationException | SAXException | IOException e) {
+
+			throw new MojoFailureException("unable to transform test result");
+		}
 
 	}
 

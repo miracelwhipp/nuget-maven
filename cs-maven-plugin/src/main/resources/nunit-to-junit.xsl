@@ -6,23 +6,17 @@
 
 	<xsl:template match="/test-run">
 
-		match
-
 		<xsl:for-each select="test-suite//test-case[1]">
-
-			firstcase
 
 			<xsl:for-each select="..">
 
-				suite
-
-				<xsl:value-of select="concat($target-directory,'/TEST-', @classname, '.xml')"/>
+				<!--<xsl:value-of select="concat($target-directory,'/TEST-', @classname, '.xml')"/>-->
 
 				<xsl:result-document href="/{$target-directory}/TEST-{@classname}.xml">
 
 
 					<xsl:variable name="firstTestName"
-								  select="test-case[1]//@name"/>
+								  select="test-case[1]/@name"/>
 
 					<xsl:variable name="assembly">
 						<xsl:choose>
