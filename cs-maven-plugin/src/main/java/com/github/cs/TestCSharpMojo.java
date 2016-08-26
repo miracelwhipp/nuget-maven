@@ -1,24 +1,5 @@
 package com.github.cs;
 
-import org.apache.maven.plugin.AbstractMojo;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
-import org.apache.maven.plugins.annotations.LifecyclePhase;
-import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.plugins.annotations.ResolutionScope;
-import org.apache.maven.project.DefaultDependencyResolutionRequest;
-import org.apache.maven.project.DependencyResolutionException;
-import org.apache.maven.project.DependencyResolutionResult;
-import org.apache.maven.project.MavenProject;
-import org.apache.maven.project.ProjectDependenciesResolver;
-import org.eclipse.aether.RepositorySystemSession;
-import org.eclipse.aether.artifact.Artifact;
-import org.eclipse.aether.graph.Dependency;
-import org.eclipse.aether.graph.DependencyFilter;
-import org.eclipse.aether.graph.DependencyNode;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -29,11 +10,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.ServiceLoader;
 import java.util.Set;
+
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
+import org.apache.maven.project.DependencyResolutionException;
+import org.eclipse.aether.graph.Dependency;
 
 /**
  * This goal executes the test for the c# code with the n-unit-3 console runner.
@@ -48,9 +35,13 @@ import java.util.Set;
 public class TestCSharpMojo extends AbstractNetMojo {
 
 	public static final String ENV_PATH = "Path";
+	private static final int BUFFER_SIZE = 128 * 1025;
 
 	private static final Set<String> ALLOWED_SCOPES =
 			Collections.unmodifiableSet(new HashSet<>(Arrays.asList("compile", "provided", "system", "test")));
+
+	private static final String TEST_RESULT_FILE = "TestResult.xml";
+
 
 	@Parameter(readonly = true, defaultValue = "${project.build.testOutputDirectory}")
 	private File workingDirectory;
@@ -64,6 +55,9 @@ public class TestCSharpMojo extends AbstractNetMojo {
 	@Parameter
 	private List<String> excludes;
 
+	@Parameter(defaultValue = "false", property = "skipTests")
+	private boolean skipTests;
+
 	@Parameter(defaultValue = "${project.build.directory}/nunit-reports")
 	private File reportsDirectory;
 
@@ -71,6 +65,14 @@ public class TestCSharpMojo extends AbstractNetMojo {
 	public void execute() throws MojoExecutionException, MojoFailureException {
 
 		try {
+
+			if (skipTests) {
+
+				getLog().info("The tests are skipped.");
+				return;
+			}
+
+			reportsDirectory.mkdirs();
 
 			File testLibraryFile = new File(workingDirectory, testLibrary);
 
@@ -89,13 +91,14 @@ public class TestCSharpMojo extends AbstractNetMojo {
 			ProcessBuilder builder = new ProcessBuilder(runner.getPath());
 			builder.directory(workingDirectory);
 
-
 			builder.command().add(testLibraryFile.getAbsolutePath());
 
 			if (!condition.isEmpty()) {
 				builder.command().add("--where");
 				builder.command().add("\"" + condition + "\"");
 			}
+
+			builder.command().add("--result:" + new File(reportsDirectory, TEST_RESULT_FILE).getAbsolutePath());
 
 			copyToLib(frameworkProvider.getNUnitLibrary());
 
@@ -120,6 +123,7 @@ public class TestCSharpMojo extends AbstractNetMojo {
 				return;
 			}
 
+
 			if (exitValue != 0) {
 
 				getLog().debug("nUnit runner finished with exit value " + exitValue);
@@ -138,7 +142,7 @@ public class TestCSharpMojo extends AbstractNetMojo {
 	private void copyToLib(File file) throws IOException {
 
 		try (InputStream source = new FileInputStream(file);
-		     OutputStream target = new FileOutputStream(new File(workingDirectory, file.getName()))) {
+			 OutputStream target = new FileOutputStream(new File(workingDirectory, file.getName()))) {
 
 			byte[] buffer = new byte[128 * 1024];
 

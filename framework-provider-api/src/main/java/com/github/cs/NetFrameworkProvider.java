@@ -18,11 +18,11 @@ public interface NetFrameworkProvider {
 	File getCSharpCompiler() throws IOException;
 
 	/**
-	 * This method returns the location of the ms core library.
+	 * This method returns the directory where the .Net framework libraries are located.
 	 *
 	 * @return the location of the ms core library
 	 */
-	File getMsCoreLibrary() throws IOException;
+	File getFrameworkLibraryPath() throws IOException;
 
 
 	/**

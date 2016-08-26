@@ -1,15 +1,12 @@
 package com.github.cs;
 
+import java.io.File;
+import java.io.FileFilter;
+import java.io.IOException;
+import java.util.List;
+
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
 
 /**
  * This class interfaces the command line to invoke the c# compiler.
@@ -69,7 +66,35 @@ public class CSharpCompiler {
 
 			processBuilder.command().add("/recurse:" + csSourceDirectory + "\\*.cs");
 
-			processBuilder.command().add("/reference:" + frameworkProvider.getMsCoreLibrary().getPath());
+
+			File[] frameworkLibraries = frameworkProvider.getFrameworkLibraryPath().listFiles(new FileFilter() {
+				@Override
+				public boolean accept(File pathname) {
+
+					String name = pathname.getName();
+
+					if (!name.endsWith(".dll")) {
+
+						return false;
+					}
+
+					if (name.startsWith("mscorlib.dll")) {
+
+						return true;
+					}
+
+					if (name.startsWith("System.EnterpriseServices.")) {
+
+						return false;
+					}
+
+					return name.startsWith("System.");
+				}
+			});
+
+			for (File frameworkLibrary : frameworkLibraries) {
+				processBuilder.command().add("/reference:" + frameworkLibrary.getAbsolutePath());
+			}
 
 			for (File referenceFile : referenceFiles) {
 

@@ -33,16 +33,16 @@ public class DefaultNetFrameworkProvider implements NetFrameworkProvider {
 	}
 
 	@Override
-	public File getMsCoreLibrary() {
+	public File getFrameworkLibraryPath() {
 
-		String coreLib = configuration.get("msCoreLibrary");
+		String coreLib = configuration.get("frameworkLibraryPath");
 
 		if (coreLib != null) {
 
 			return new File(coreLib.trim());
 		}
 
-		return new File("mscorlib.dll");
+		return new File(".");
 	}
 
 	@Override
