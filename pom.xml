@@ -17,8 +17,21 @@
 		<url>https://github.com/miracelwhipp/cs-maven.git</url>
 		<connection>scm:git:https://github.com/miracelwhipp/cs-maven.git</connection>
 		<developerConnection>scm:git:https://github.com/miracelwhipp/cs-maven.git</developerConnection>
-		<tag>master</tag>
 	</scm>
+
+	<distributionManagement>
+		<repository>
+			<id>default-repository</id>
+			<name>default-repository</name>
+			<url>${repository-url}/releases</url>
+		</repository>
+		<snapshotRepository>
+			<id>default-repository</id>
+			<name>default-repository</name>
+			<url>${repository-url}/snapshots</url>
+		</snapshotRepository>
+	</distributionManagement>
+
 
 	<modules>
 		<module>cs-maven-plugin</module>
@@ -63,7 +76,6 @@
 					<autoVersionSubmodules>true</autoVersionSubmodules>
 				</configuration>
 			</plugin>
-
 		</plugins>
 	</build>
 
