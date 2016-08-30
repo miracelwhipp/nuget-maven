@@ -1,25 +1,14 @@
 package com.github.cs;
 
-import org.apache.maven.plugin.AbstractMojo;
-import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
-import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.project.DefaultDependencyResolutionRequest;
-import org.apache.maven.project.DependencyResolutionException;
-import org.apache.maven.project.DependencyResolutionResult;
-import org.apache.maven.project.MavenProject;
-import org.apache.maven.project.ProjectDependenciesResolver;
-import org.eclipse.aether.RepositorySystemSession;
-import org.eclipse.aether.artifact.Artifact;
-import org.eclipse.aether.graph.Dependency;
-import org.eclipse.aether.graph.DependencyFilter;
-import org.eclipse.aether.graph.DependencyNode;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
+
+import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.DependencyResolutionException;
+import org.eclipse.aether.graph.Dependency;
 
 /**
  * This abstract class works as base class for maven goals that compile c# code. It collects common parameters and
@@ -29,8 +18,13 @@ import java.util.Set;
  */
 public abstract class AbstractCompileCSharpMojo extends AbstractNetMojo {
 
+
 	@Parameter
 	protected List<String> preprocessorDefines;
+
+	@Parameter
+	protected List<String> frameworkReferences;
+
 
 	protected File compile(
 			File workingDirectory,
@@ -74,9 +68,11 @@ public abstract class AbstractCompileCSharpMojo extends AbstractNetMojo {
 				targetType,
 				outputFile,
 				preprocessorDefines,
-				getFrameworkProvider()
+				getFrameworkProvider(),
+				frameworkReferences
 		);
 
 		return compiler.compile();
 	}
+
 }

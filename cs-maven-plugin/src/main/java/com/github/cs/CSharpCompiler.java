@@ -1,8 +1,9 @@
 package com.github.cs;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.maven.plugin.MojoFailureException;
@@ -15,6 +16,10 @@ import org.apache.maven.plugin.logging.Log;
  */
 public class CSharpCompiler {
 
+	private static final List<String> DEFAULT_FRAMEWORK_REFERENCES = Arrays.asList("mscorlib", "System", "System.Xml",
+			"Microsoft.CSharp", "System.Core", "System.Xml.Linq", "System.Data.DataSetExtensions", "System.Data");
+
+	public static final String EXTENSION_DLL = ".dll";
 	private final File workingDirectory;
 	private final File csSourceDirectory;
 	private final List<File> referenceFiles;
@@ -23,6 +28,7 @@ public class CSharpCompiler {
 	private final List<String> defines;
 	private final Log logger;
 	private final NetFrameworkProvider frameworkProvider;
+	private final List<String> frameworkReferences;
 
 	public CSharpCompiler(
 			Log logger,
@@ -32,8 +38,8 @@ public class CSharpCompiler {
 			CSharpCompilerTargetType targetType,
 			String targetFileName,
 			List<String> defines,
-			NetFrameworkProvider frameworkProvider
-	) {
+			NetFrameworkProvider frameworkProvider,
+			List<String> frameworkReferences) {
 		this.logger = logger;
 		this.workingDirectory = workingDirectory;
 		this.csSourceDirectory = csSourceDirectory;
@@ -42,6 +48,7 @@ public class CSharpCompiler {
 		this.targetFileName = targetFileName;
 		this.defines = defines;
 		this.frameworkProvider = frameworkProvider;
+		this.frameworkReferences = frameworkReferences;
 	}
 
 	public File compile() throws MojoFailureException {
@@ -66,34 +73,17 @@ public class CSharpCompiler {
 
 			processBuilder.command().add("/recurse:" + csSourceDirectory + "\\*.cs");
 
+			File frameworkLibraryPath = frameworkProvider.getFrameworkLibraryPath();
 
-			File[] frameworkLibraries = frameworkProvider.getFrameworkLibraryPath().listFiles(new FileFilter() {
-				@Override
-				public boolean accept(File pathname) {
+			List<String> frameworkLibraries = new ArrayList<>(DEFAULT_FRAMEWORK_REFERENCES);
 
-					String name = pathname.getName();
+			if (frameworkReferences != null) {
+				frameworkLibraries.addAll(frameworkReferences);
+			}
 
-					if (!name.endsWith(".dll")) {
-
-						return false;
-					}
-
-					if (name.startsWith("mscorlib.dll")) {
-
-						return true;
-					}
-
-					if (name.startsWith("System.EnterpriseServices.")) {
-
-						return false;
-					}
-
-					return name.startsWith("System.");
-				}
-			});
-
-			for (File frameworkLibrary : frameworkLibraries) {
-				processBuilder.command().add("/reference:" + frameworkLibrary.getAbsolutePath());
+			for (String frameworkLibrary : frameworkLibraries) {
+				processBuilder.command().add("/reference:" +
+						new File(frameworkLibraryPath, frameworkLibrary + EXTENSION_DLL).getAbsolutePath());
 			}
 
 			for (File referenceFile : referenceFiles) {
