@@ -73,6 +73,9 @@ public class TestCSharpMojo extends AbstractNetMojo {
 	@Parameter(defaultValue = "${project.build.directory}/nunit-reports")
 	private File reportsDirectory;
 
+	@Parameter(defaultValue = "false", property = "maven.test.failure.ignore")
+	private boolean ignoreFailure;
+
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
 
@@ -152,13 +155,15 @@ public class TestCSharpMojo extends AbstractNetMojo {
 				return;
 			}
 
-			transformResultFile();
-
+			transformResultFile(exitValue);
 
 			if (exitValue != 0) {
 
 				getLog().debug("nUnit runner finished with exit value " + exitValue);
-				throw new MojoFailureException("There were test failures.");
+
+				if (!ignoreFailure) {
+					throw new MojoFailureException("There were test failures.");
+				}
 			}
 
 
@@ -170,7 +175,7 @@ public class TestCSharpMojo extends AbstractNetMojo {
 
 	}
 
-	private void transformResultFile() throws MojoFailureException {
+	private void transformResultFile(int exitValue) throws MojoFailureException {
 
 		try {
 
@@ -189,6 +194,7 @@ public class TestCSharpMojo extends AbstractNetMojo {
 			StreamResult result = new StreamResult(new File(reportsDirectory, "result.xml"));
 
 			transformer.setParameter("target-directory", reportsDirectory.getAbsolutePath());
+			transformer.setParameter("nunit-result", exitValue);
 
 			transformer.transform(source, result);
 

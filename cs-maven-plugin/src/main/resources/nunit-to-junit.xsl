@@ -3,14 +3,27 @@
 
 	<xsl:output method="xml" indent="yes"/>
 	<xsl:param name="target-directory"/>
+	<xsl:param name="nunit-result"/>
 
 	<xsl:template match="/test-run">
+
+		<failsafe-summary result="{$nunit-result}" timeout="false">
+			<completed>
+				<xsl:value-of select="test-suite/@passed"/>
+			</completed>
+			<errors>0</errors>
+			<failures>
+				<xsl:value-of select="test-suite/@failed"/>
+			</failures>
+			<skipped>
+				<xsl:value-of select="test-suite/@skipped"/>
+			</skipped>
+		</failsafe-summary>
+
 
 		<xsl:for-each select="test-suite//test-case[1]">
 
 			<xsl:for-each select="..">
-
-				<!--<xsl:value-of select="concat($target-directory,'/TEST-', @classname, '.xml')"/>-->
 
 				<xsl:result-document href="/{$target-directory}/TEST-{@classname}.xml">
 
