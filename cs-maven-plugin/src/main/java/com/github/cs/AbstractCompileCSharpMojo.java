@@ -29,6 +29,8 @@ public abstract class AbstractCompileCSharpMojo extends AbstractNetMojo {
 	protected File compile(
 			File workingDirectory,
 			File csSourceDirectory,
+			File generatedSourceDirectory,
+			List<String> additionalSourceDirectories,
 			String outputFile,
 			CSharpCompilerTargetType targetType,
 			Set<String> allowedScopes,
@@ -60,10 +62,23 @@ public abstract class AbstractCompileCSharpMojo extends AbstractNetMojo {
 			references.add(additionalReference);
 		}
 
+		List<File> sourceDirectories = new ArrayList<>();
+
+		sourceDirectories.add(csSourceDirectory);
+		sourceDirectories.add(generatedSourceDirectory);
+
+		if (additionalSourceDirectories != null) {
+
+			for (String directory : additionalSourceDirectories) {
+
+				sourceDirectories.add(new File(directory));
+			}
+		}
+
 		CSharpCompiler compiler = new CSharpCompiler(
 				getLog(),
 				workingDirectory,
-				csSourceDirectory,
+				sourceDirectories,
 				references,
 				targetType,
 				outputFile,

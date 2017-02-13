@@ -21,7 +21,7 @@ public class CSharpCompiler {
 
 	public static final String EXTENSION_DLL = ".dll";
 	private final File workingDirectory;
-	private final File csSourceDirectory;
+	private final List<File> csSourceDirectories;
 	private final List<File> referenceFiles;
 	private final CSharpCompilerTargetType targetType;
 	private final String targetFileName;
@@ -33,7 +33,7 @@ public class CSharpCompiler {
 	public CSharpCompiler(
 			Log logger,
 			File workingDirectory,
-			File csSourceDirectory,
+			List<File> csSourceDirectories,
 			List<File> referenceFiles,
 			CSharpCompilerTargetType targetType,
 			String targetFileName,
@@ -42,7 +42,7 @@ public class CSharpCompiler {
 			List<String> frameworkReferences) {
 		this.logger = logger;
 		this.workingDirectory = workingDirectory;
-		this.csSourceDirectory = csSourceDirectory;
+		this.csSourceDirectories = csSourceDirectories;
 		this.referenceFiles = referenceFiles;
 		this.targetType = targetType;
 		this.targetFileName = targetFileName;
@@ -71,7 +71,10 @@ public class CSharpCompiler {
 
 			processBuilder.command().add("/out:" + outFileName);
 
-			processBuilder.command().add("/recurse:" + csSourceDirectory + "\\*.cs");
+			for (File csSourceDirectory : csSourceDirectories) {
+
+				processBuilder.command().add("/recurse:" + csSourceDirectory + "\\*.cs");
+			}
 
 			File frameworkLibraryPath = frameworkProvider.getFrameworkLibraryPath();
 

@@ -76,6 +76,12 @@ public class TestCSharpMojo extends AbstractNetMojo {
 	@Parameter(defaultValue = "false", property = "maven.test.failure.ignore")
 	private boolean ignoreFailure;
 
+	@Parameter(readonly = true, defaultValue = "${project.artifactId}-${project.version}")
+	private String outputFile;
+
+	@Parameter(readonly = true, defaultValue = "${project.build.directory}")
+	private File targetDirectory;
+
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
 
@@ -86,6 +92,15 @@ public class TestCSharpMojo extends AbstractNetMojo {
 				getLog().info("The tests are skipped.");
 
 				return;
+			}
+
+			String targetString = project.getArtifact().getArtifactHandler().getPackaging();
+
+			CSharpCompilerTargetType targetType = CSharpCompilerTargetType.fromString(targetString);
+
+			if (targetType == null) {
+
+				throw new MojoFailureException("unknown target type : " + targetString);
 			}
 
 			reportsDirectory.mkdirs();
@@ -133,6 +148,8 @@ public class TestCSharpMojo extends AbstractNetMojo {
 			builder.command().add("--result:" + new File(reportsDirectory, TEST_RESULT_FILE).getAbsolutePath());
 
 			copyToLib(frameworkProvider.getNUnitLibrary());
+
+			copyToLib(new File(targetDirectory, outputFile + "." + targetType.getFileSuffix()));
 
 			List<File> testDependencies = getTestDependencies();
 
