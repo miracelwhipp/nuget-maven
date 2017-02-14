@@ -27,12 +27,21 @@ import org.apache.maven.project.DependencyResolutionException;
 )
 public class CompileCSharpMojo extends AbstractCompileCSharpMojo {
 
+	/**
+	 * This parameter specifies where the main sources are located.
+	 */
 	@Parameter(defaultValue = "${project.basedir}/src/main/cs", property = "cs.source.directory")
 	private File csSourceDirectory;
 
+	/**
+	 * This parameter specifies where generated sources are located.
+	 */
 	@Parameter(defaultValue = "${project.build.directory}/generated-sources/main/cs", property = "cs.generated.source.directory")
 	private File generatedSourceDirectory;
 
+	/**
+	 * This parameter specifies additional directories where sources are located.
+	 */
 	@Parameter
 	private List<String> additionalSourceDirectories;
 

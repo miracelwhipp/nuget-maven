@@ -38,42 +38,91 @@ public class GenerateAssemblyInfo extends AbstractMojo {
 	@Parameter(defaultValue = "false", property = "cs.assembly.info.skip")
 	private boolean skip;
 
+	/**
+	 * This parameter specifies where generated sources are located.
+	 */
 	@Parameter(defaultValue = "${project.build.directory}/generated-sources/main/cs", property = "cs.generated.source.directory")
 	private File generatedSourceDirectory;
 
+	/**
+	 * This parameter specifies a description for an assembly.
+	 */
 	@Parameter(defaultValue = "${project.name}", property = "cs.assembly.title")
 	private String title;
 
+	/**
+	 * This parameter provides a text description for an assembly.
+	 */
 	@Parameter(defaultValue = "${project.description}", property = "cs.assembly.description")
 	private String description;
 
+	/**
+	 * This parameters specifies the build configuration, such as retail or debug, for an assembly.
+	 */
 	@Parameter(property = "cs.assembly.configuration")
 	private String configuration;
 
+	/**
+	 * This parameter defines a company name for the assembly manifest.
+	 */
 	@Parameter(property = "cs.assembly.company")
 	private String company;
 
+	/**
+	 * This parameter defines a product name for the assembly manifest.
+	 */
 	@Parameter(defaultValue = "${project.name}", property = "cs.assembly.product")
 	private String product;
 
+	/**
+	 * This parameter defines a copyright for the assembly manifest.
+	 */
 	@Parameter(property = "cs.assembly.copyright")
 	private String copyright;
 
+	/**
+	 * This parameter defines a trademark for the assembly manifest.
+	 */
 	@Parameter(property = "cs.assembly.trademark")
 	private String trademark;
 
+	/**
+	 * This parameter specifies which culture the assembly supports.
+	 */
 	@Parameter(property = "cs.assembly.culture")
 	private String culture;
 
+	/**
+	 * Setting this parameter to true makes the types in this assembly visible to COM components.
+	 */
 	@Parameter(defaultValue = "false", property = "cs.assembly.com.visible")
 	private boolean comVisible;
 
+	/**
+	 * This parameter defines the ID of the typelib if this project is exposed to COM.
+	 */
 	@Parameter(property = "cs.assembly.guid")
 	private String guid;
 
+	/**
+	 * This parameter defines the version information of the assembly. It consists of the following four values:
+	 *
+	 *       Major Version
+	 *       Minor Version
+	 *       Build Number
+	 *       Revision
+	 *
+	 *  You can specify all the values or you can default the Build and Revision Numbers
+	 *  by using the '*' as shown below:
+	 *  1.0.*
+	 */
 	@Parameter(defaultValue = "${project.version}", property = "cs.assembly.version")
 	private String version;
 
+	/**
+	 * This parameter instructs the compiler to use a specific version number for the Win32 file version resource.
+	 * The Win32 file version is not required to be the same as the assembly's version number.
+	 */
 	@Parameter(defaultValue = "${project.version}", property = "cs.assembly.file.version")
 	private String fileVersion;
 
