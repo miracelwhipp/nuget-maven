@@ -9,6 +9,7 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -222,25 +223,27 @@ public class GenerateAssemblyInfo extends AbstractMojo {
 		) {
 
 			int read;
+			int length = 0;
 			byte[] buffer = new byte[BUFFER_SIZE];
 
 			while ((read = source.read(buffer)) >= 0) {
 
 				memory.write(buffer, 0, read);
+				length += read;
 			}
 
-			String assemblyInfo = new String(buffer, StandardCharsets.UTF_8);
+			String assemblyInfo = new String(buffer, 0, length, StandardCharsets.UTF_8);
 
-			assemblyInfo = assemblyInfo.replace("${assembly.title}", title);
-			assemblyInfo = assemblyInfo.replace("${assembly.description}", description);
-			assemblyInfo = assemblyInfo.replace("${assembly.configuration}", configuration);
-			assemblyInfo = assemblyInfo.replace("${assembly.company}", company);
-			assemblyInfo = assemblyInfo.replace("${assembly.product}", product);
-			assemblyInfo = assemblyInfo.replace("${assembly.copyright}", copyright);
-			assemblyInfo = assemblyInfo.replace("${assembly.trademark}", trademark);
-			assemblyInfo = assemblyInfo.replace("${assembly.culture}", culture);
+			assemblyInfo = assemblyInfo.replace("${assembly.title}", StringEscapeUtils.escapeJava(title));
+			assemblyInfo = assemblyInfo.replace("${assembly.description}", StringEscapeUtils.escapeJava(description));
+			assemblyInfo = assemblyInfo.replace("${assembly.configuration}", StringEscapeUtils.escapeJava(configuration));
+			assemblyInfo = assemblyInfo.replace("${assembly.company}", StringEscapeUtils.escapeJava(company));
+			assemblyInfo = assemblyInfo.replace("${assembly.product}", StringEscapeUtils.escapeJava(product));
+			assemblyInfo = assemblyInfo.replace("${assembly.copyright}", StringEscapeUtils.escapeJava(copyright));
+			assemblyInfo = assemblyInfo.replace("${assembly.trademark}", StringEscapeUtils.escapeJava(trademark));
+			assemblyInfo = assemblyInfo.replace("${assembly.culture}", StringEscapeUtils.escapeJava(culture));
 			assemblyInfo = assemblyInfo.replace("${assembly.com.visible}", Boolean.toString(comVisible));
-			assemblyInfo = assemblyInfo.replace("${assembly.guid}", guid);
+			assemblyInfo = assemblyInfo.replace("${assembly.guid}", StringEscapeUtils.escapeJava(guid));
 			assemblyInfo = assemblyInfo.replace("${assembly.version}", version);
 			assemblyInfo = assemblyInfo.replace("${assembly.file.version}", fileVersion);
 
