@@ -12,14 +12,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
 import org.apache.maven.plugin.MojoExecutionException;
@@ -30,7 +25,6 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.DependencyResolutionException;
 import org.eclipse.aether.graph.Dependency;
-import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 /**
@@ -175,32 +169,20 @@ public class TestCSharpMojo extends AbstractNetMojo {
 
 	}
 
-	private void transformResultFile(int exitValue) throws MojoFailureException {
+	private void transformResultFile(final int exitValue) throws MojoFailureException {
 
 		try {
-
-			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-			DocumentBuilder builder = factory.newDocumentBuilder();
-
-			Document resultDocument = builder.parse(new File(reportsDirectory, TEST_RESULT_FILE));
-
-			// Use a Transformer for output
-			TransformerFactory tFactory = TransformerFactory.newInstance();
-			StreamSource stylesource = new StreamSource(new File(reportsDirectory, TRANSFORMATION_FILE));
-
-			Transformer transformer = tFactory.newTransformer(stylesource);
-
-			DOMSource source = new DOMSource(resultDocument.getDocumentElement());
-			StreamResult result = new StreamResult(new File(reportsDirectory, "result.xml"));
-
-			transformer.setParameter("target-directory", reportsDirectory.getAbsolutePath());
-			transformer.setParameter("nunit-result", exitValue);
-
-			transformer.transform(source, result);
-
+			final File styleSheet = new File(reportsDirectory, TRANSFORMATION_FILE);
+			XmlTransformation.transformFile(new File(reportsDirectory, TEST_RESULT_FILE), new StreamSource(styleSheet), new File(reportsDirectory, "result.xml"), new XmlTransformation.ParameterSetter() {
+				@Override
+				public void setParameters(Transformer transformer) {
+					transformer.setParameter("target-directory", reportsDirectory.getAbsolutePath());
+					transformer.setParameter("nunit-result", exitValue);
+				}
+			});
 		} catch (TransformerException | ParserConfigurationException | SAXException | IOException e) {
 
-			throw new MojoFailureException("unable to transform test result");
+			throw new MojoFailureException("unable to transform file.", e);
 		}
 
 	}
@@ -208,7 +190,7 @@ public class TestCSharpMojo extends AbstractNetMojo {
 	private void copyToLib(File file) throws IOException {
 
 		try (InputStream source = new FileInputStream(file);
-			 OutputStream target = new FileOutputStream(new File(workingDirectory, file.getName()))) {
+		     OutputStream target = new FileOutputStream(new File(workingDirectory, file.getName()))) {
 
 			byte[] buffer = new byte[128 * 1024];
 
