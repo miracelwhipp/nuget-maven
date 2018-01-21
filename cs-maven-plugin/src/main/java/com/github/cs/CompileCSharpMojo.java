@@ -1,5 +1,12 @@
 package com.github.cs;
 
+import java.io.File;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -7,14 +14,6 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.DependencyResolutionException;
-import org.apache.maven.project.MavenProject;
-
-import java.io.File;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 /**
  * This goal compiles the c# sources and creates the projects artifact.
@@ -28,8 +27,23 @@ import java.util.Set;
 )
 public class CompileCSharpMojo extends AbstractCompileCSharpMojo {
 
+	/**
+	 * This parameter specifies where the main sources are located.
+	 */
 	@Parameter(defaultValue = "${project.basedir}/src/main/cs", property = "cs.source.directory")
 	private File csSourceDirectory;
+
+	/**
+	 * This parameter specifies where generated sources are located.
+	 */
+	@Parameter(defaultValue = "${project.build.directory}/generated-sources/main/cs", property = "cs.generated.source.directory")
+	private File generatedSourceDirectory;
+
+	/**
+	 * This parameter specifies additional directories where sources are located.
+	 */
+	@Parameter
+	private List<String> additionalSourceDirectories;
 
 	@Parameter(readonly = true, defaultValue = "${project.build.directory}")
 	private File workingDirectory;
@@ -57,6 +71,8 @@ public class CompileCSharpMojo extends AbstractCompileCSharpMojo {
 			File assembly = compile(
 					workingDirectory,
 					csSourceDirectory,
+					generatedSourceDirectory,
+					additionalSourceDirectories,
 					outputFile,
 					targetType,
 					ALLOWED_SCOPES,
