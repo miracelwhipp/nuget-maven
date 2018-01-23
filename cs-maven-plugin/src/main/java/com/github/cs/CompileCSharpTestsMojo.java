@@ -2,11 +2,7 @@ package com.github.cs;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -35,7 +31,16 @@ public class CompileCSharpTestsMojo extends AbstractCompileCSharpMojo {
 	private File generatedTestSourceDirectory;
 
 	@Parameter
+	protected List<String> preprocessorTestDefines = new ArrayList<>();
+
+	@Parameter
 	private List<String> additionalTestSourceDirectories;
+
+	/**
+	 * This parameter specifies files to be added as resources to the tests.
+	 */
+	@Parameter
+	private List<String> testResources = new ArrayList<>();
 
 	@Parameter(readonly = true, defaultValue = "${project.build.testOutputDirectory}")
 	private File testOutputDirectory;
@@ -76,7 +81,8 @@ public class CompileCSharpTestsMojo extends AbstractCompileCSharpMojo {
 					testOutputFile,
 					CSharpCompilerTargetType.LIBRARY,
 					ALLOWED_SCOPES,
-					preprocessorDefines,
+					preprocessorTestDefines,
+					testResources,
 					getFrameworkProvider().getNUnitLibrary(),
 					new File(targetDirectory, outputFile + "." + targetType.getFileSuffix())
 			);

@@ -1,19 +1,13 @@
 package com.github.cs;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.LifecyclePhase;
-import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.plugins.annotations.ResolutionScope;
+import org.apache.maven.plugins.annotations.*;
 import org.apache.maven.project.DependencyResolutionException;
+import org.apache.maven.project.MavenProjectHelper;
 
 /**
  * This goal compiles the c# sources and creates the projects artifact.
@@ -34,22 +28,25 @@ public class CompileCSharpMojo extends AbstractCompileCSharpMojo {
 	private File csSourceDirectory;
 
 	/**
-	 * This parameter specifies where generated sources are located.
-	 */
-	@Parameter(defaultValue = "${project.build.directory}/generated-sources/main/cs", property = "cs.generated.source.directory")
-	private File generatedSourceDirectory;
-
-	/**
 	 * This parameter specifies additional directories where sources are located.
 	 */
 	@Parameter
 	private List<String> additionalSourceDirectories;
 
-	@Parameter(readonly = true, defaultValue = "${project.build.directory}")
-	private File workingDirectory;
+	/**
+	 * This parameter specifies files to be added as resources.
+	 */
+	@Parameter
+	private List<String> resources = new ArrayList<>();
 
-	@Parameter(readonly = true, defaultValue = "${project.artifactId}-${project.version}")
-	private String outputFile;
+	@Parameter
+	private List<String> preprocessorDefines = new ArrayList<>();
+
+	@Parameter
+	private String executableType;
+
+	@Component
+	private MavenProjectHelper projectHelper;
 
 	private static final Set<String> ALLOWED_SCOPES =
 			Collections.unmodifiableSet(new HashSet<>(Arrays.asList("compile", "provided", "system")));
@@ -59,24 +56,37 @@ public class CompileCSharpMojo extends AbstractCompileCSharpMojo {
 
 		try {
 
-			String target = project.getArtifact().getArtifactHandler().getPackaging();
-
-			CSharpCompilerTargetType targetType = CSharpCompilerTargetType.fromString(target);
+			CSharpCompilerTargetType targetType = getTargetType();
 
 			if (targetType == null) {
 
-				throw new MojoFailureException("unknown target type : " + target);
+				throw new MojoFailureException("unknown target type : " + project.getArtifact().getArtifactHandler().getPackaging());
 			}
+
+			if (targetType == CSharpCompilerTargetType.EXE) {
+
+				if (CSharpCompilerTargetType.APP_CONTAINER.getArgumentId().equals(executableType)) {
+
+					targetType = CSharpCompilerTargetType.APP_CONTAINER;
+
+				} else if (CSharpCompilerTargetType.WINDOWS_EXE.getArgumentId().equals(executableType)) {
+
+					targetType = CSharpCompilerTargetType.WINDOWS_EXE;
+				}
+			}
+
+			String outputFile = getOutputFile();
 
 			File assembly = compile(
 					workingDirectory,
 					csSourceDirectory,
-					generatedSourceDirectory,
+					getGeneratedSourceDirectory(),
 					additionalSourceDirectories,
 					outputFile,
 					targetType,
 					ALLOWED_SCOPES,
-					preprocessorDefines
+					preprocessorDefines,
+					resources
 			);
 
 			if (assembly == null) {
@@ -84,13 +94,20 @@ public class CompileCSharpMojo extends AbstractCompileCSharpMojo {
 				throw new MojoFailureException("There were no main sources to compile.");
 			}
 
-			project.getArtifact().setFile(assembly);
+
+			if (classifier == null) {
+
+				project.getArtifact().setFile(assembly);
+
+			} else {
+
+				projectHelper.attachArtifact(project, targetType.getFileSuffix(), classifier, assembly);
+			}
+
 
 		} catch (DependencyResolutionException e) {
 
 			throw new MojoFailureException(e.getMessage(), e);
 		}
-
 	}
-
 }
