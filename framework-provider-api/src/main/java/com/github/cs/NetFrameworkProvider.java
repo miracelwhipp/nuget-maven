@@ -20,7 +20,7 @@ public interface NetFrameworkProvider {
 	/**
 	 * This method returns the directory where the .Net framework libraries are located.
 	 *
-	 * @return the location of the ms core library
+	 * @return the location of the .Net framework libraries
 	 */
 	File getFrameworkLibraryPath() throws IOException;
 
