@@ -20,7 +20,6 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
 /**
- *
  * This goal generates an AssemblyInfo.cs source file with assembly information.
  *
  * @author jschwarz
@@ -30,7 +29,7 @@ import org.apache.maven.project.MavenProject;
 		defaultPhase = LifecyclePhase.GENERATE_SOURCES,
 		requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME
 )
-public class GenerateAssemblyInfo extends AbstractMojo {
+public class GenerateAssemblyInfo extends AbstractNetMojo {
 
 	private static final String FILE_NAME = "AssemblyInfo.cs";
 	public static final int BUFFER_SIZE = 512 * 1024;
@@ -38,12 +37,6 @@ public class GenerateAssemblyInfo extends AbstractMojo {
 
 	@Parameter(defaultValue = "false", property = "cs.assembly.info.skip")
 	private boolean skip;
-
-	/**
-	 * This parameter specifies where generated sources are located.
-	 */
-	@Parameter(defaultValue = "${project.build.directory}/generated-sources/main/cs", property = "cs.generated.source.directory")
-	private File generatedSourceDirectory;
 
 	/**
 	 * This parameter specifies a description for an assembly.
@@ -94,12 +87,6 @@ public class GenerateAssemblyInfo extends AbstractMojo {
 	private String culture;
 
 	/**
-	 * Setting this parameter to true makes the types in this assembly visible to COM components.
-	 */
-	@Parameter(defaultValue = "false", property = "cs.assembly.com.visible")
-	private boolean comVisible;
-
-	/**
 	 * This parameter defines the ID of the typelib if this project is exposed to COM.
 	 */
 	@Parameter(property = "cs.assembly.guid")
@@ -107,15 +94,15 @@ public class GenerateAssemblyInfo extends AbstractMojo {
 
 	/**
 	 * This parameter defines the version information of the assembly. It consists of the following four values:
-	 *
-	 *       Major Version
-	 *       Minor Version
-	 *       Build Number
-	 *       Revision
-	 *
-	 *  You can specify all the values or you can default the Build and Revision Numbers
-	 *  by using the '*' as shown below:
-	 *  1.0.*
+	 * <p>
+	 * Major Version
+	 * Minor Version
+	 * Build Number
+	 * Revision
+	 * <p>
+	 * You can specify all the values or you can default the Build and Revision Numbers
+	 * by using the '*' as shown below:
+	 * 1.0.*
 	 */
 	@Parameter(defaultValue = "${project.version}", property = "cs.assembly.version")
 	private String version;
@@ -138,6 +125,8 @@ public class GenerateAssemblyInfo extends AbstractMojo {
 			return;
 		}
 
+		String classifier = getClassifier();
+
 		if (title == null) {
 
 			title = project.getArtifactId();
@@ -151,7 +140,7 @@ public class GenerateAssemblyInfo extends AbstractMojo {
 		if (guid == null) {
 
 			guid = UUID.nameUUIDFromBytes((
-					project.getGroupId() + ":" + project.getArtifactId() + ":" + project.getVersion()
+					project.getGroupId() + ":" + project.getArtifactId() + ":" + project.getVersion() + classifier
 			).getBytes(StandardCharsets.UTF_8)).toString();
 		}
 
@@ -199,6 +188,8 @@ public class GenerateAssemblyInfo extends AbstractMojo {
 
 			description = "";
 		}
+
+		File generatedSourceDirectory = getGeneratedSourceDirectory();
 
 		if (!generatedSourceDirectory.exists()) {
 
@@ -254,4 +245,5 @@ public class GenerateAssemblyInfo extends AbstractMojo {
 			throw new MojoExecutionException(e.getMessage(), e);
 		}
 	}
+
 }

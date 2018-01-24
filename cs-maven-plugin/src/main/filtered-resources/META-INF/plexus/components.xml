@@ -68,6 +68,9 @@
 							<compile>
 								com.github.cs:cs-maven-plugin:${project.version}:compile
 							</compile>
+							<process-classes>
+								com.github.cs:cs-maven-plugin:${project.version}:reg-asm
+							</process-classes>
 							<test-compile>
 								com.github.cs:cs-maven-plugin:test-compile
 							</test-compile>

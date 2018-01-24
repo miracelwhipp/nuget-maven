@@ -25,10 +25,12 @@ public class CSharpCompiler {
 	private final List<File> referenceFiles;
 	private final CSharpCompilerTargetType targetType;
 	private final String targetFileName;
+	private final String platform;
 	private final List<String> defines;
 	private final Log logger;
 	private final NetFrameworkProvider frameworkProvider;
 	private final List<String> frameworkReferences;
+	private final List<String> resources;
 
 	public CSharpCompiler(
 			Log logger,
@@ -37,18 +39,21 @@ public class CSharpCompiler {
 			List<File> referenceFiles,
 			CSharpCompilerTargetType targetType,
 			String targetFileName,
+			String platform,
 			List<String> defines,
 			NetFrameworkProvider frameworkProvider,
-			List<String> frameworkReferences) {
+			List<String> frameworkReferences, List<String> resources) {
 		this.logger = logger;
 		this.workingDirectory = workingDirectory;
 		this.csSourceDirectories = csSourceDirectories;
 		this.referenceFiles = referenceFiles;
 		this.targetType = targetType;
 		this.targetFileName = targetFileName;
+		this.platform = platform;
 		this.defines = defines;
 		this.frameworkProvider = frameworkProvider;
 		this.frameworkReferences = frameworkReferences;
+		this.resources = resources;
 	}
 
 	public File compile() throws MojoFailureException {
@@ -62,6 +67,14 @@ public class CSharpCompiler {
 			processBuilder.command().add("/nostdlib");
 			processBuilder.command().add("/noconfig");
 			processBuilder.command().add("/utf8output");
+
+			if (platform != null) {
+				processBuilder.command().add("/platform:" + platform);
+			}
+
+			for (String define : defines) {
+				processBuilder.command().add("/define:" + define);
+			}
 
 			processBuilder.command().add("/target:" + targetType.getArgumentId());
 
@@ -92,6 +105,10 @@ public class CSharpCompiler {
 			for (File referenceFile : referenceFiles) {
 
 				processBuilder.command().add("/reference:" + referenceFile.getAbsolutePath());
+			}
+
+			for (String resource : resources) {
+				processBuilder.command().add("/resource:" + resource);
 			}
 
 			logger.debug("executing csc:");

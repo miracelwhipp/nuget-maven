@@ -2,6 +2,7 @@ package com.github.cs;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -18,12 +19,11 @@ import org.eclipse.aether.graph.Dependency;
  */
 public abstract class AbstractCompileCSharpMojo extends AbstractNetMojo {
 
-
-	@Parameter
-	protected List<String> preprocessorDefines;
-
 	@Parameter
 	protected List<String> frameworkReferences;
+
+	@Parameter
+	protected String platform;
 
 
 	protected File compile(
@@ -35,6 +35,7 @@ public abstract class AbstractCompileCSharpMojo extends AbstractNetMojo {
 			CSharpCompilerTargetType targetType,
 			Set<String> allowedScopes,
 			List<String> preprocessorDefines,
+			List<String> resources,
 			File... additionalReferences
 	) throws DependencyResolutionException, MojoFailureException {
 
@@ -57,10 +58,7 @@ public abstract class AbstractCompileCSharpMojo extends AbstractNetMojo {
 			references.add(dependency.getArtifact().getFile());
 		}
 
-		for (File additionalReference : additionalReferences) {
-
-			references.add(additionalReference);
-		}
+		references.addAll(Arrays.asList(additionalReferences));
 
 		List<File> sourceDirectories = new ArrayList<>();
 
@@ -82,10 +80,11 @@ public abstract class AbstractCompileCSharpMojo extends AbstractNetMojo {
 				references,
 				targetType,
 				outputFile,
+				platform,
 				preprocessorDefines,
 				getFrameworkProvider(),
-				frameworkReferences
-		);
+				frameworkReferences,
+				resources);
 
 		return compiler.compile();
 	}
