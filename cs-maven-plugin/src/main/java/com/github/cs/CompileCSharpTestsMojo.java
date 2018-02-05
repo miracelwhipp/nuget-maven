@@ -73,6 +73,8 @@ public class CompileCSharpTestsMojo extends AbstractCompileCSharpMojo {
 
 		try {
 
+			File assembly = new File(targetDirectory, outputFile + "." + targetType.getFileSuffix());
+
 			compile(
 					testOutputDirectory,
 					csTestSourceDirectory,
@@ -83,11 +85,10 @@ public class CompileCSharpTestsMojo extends AbstractCompileCSharpMojo {
 					ALLOWED_SCOPES,
 					preprocessorTestDefines,
 					testResources,
-					getFrameworkProvider().getNUnitLibrary(),
-					new File(targetDirectory, outputFile + "." + targetType.getFileSuffix())
+					provideFile(assembly, project.getVersion(), testOutputDirectory)
 			);
 
-		} catch (DependencyResolutionException | IOException e) {
+		} catch (DependencyResolutionException e) {
 
 			throw new MojoFailureException(e.getMessage(), e);
 		}

@@ -24,20 +24,21 @@ public interface NetFrameworkProvider {
 	 */
 	File getFrameworkLibraryPath() throws IOException;
 
+	FrameworkVersion getFrameworkVersion();
 
-	/**
-	 * This method returns the location of the nunit runner executable.
-	 *
-	 * @return the location of the nunit runner executable
-	 */
-	File getNUnitRunner() throws IOException;
-
-	/**
-	 * This method returns the location of the nunit core library.
-	 *
-	 * @return the location of the nunit core library
-	 * @throws IOException
-	 */
-	File getNUnitLibrary() throws IOException;
+//	/**
+//	 * This method returns the location of the nunit runner executable.
+//	 *
+//	 * @return the location of the nunit runner executable
+//	 */
+//	File getNUnitRunner() throws IOException;
+//
+//	/**
+//	 * This method returns the location of the nunit core library.
+//	 *
+//	 * @return the location of the nunit core library
+//	 * @throws IOException
+//	 */
+//	File getNUnitLibrary() throws IOException;
 
 }

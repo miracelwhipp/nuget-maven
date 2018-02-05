@@ -5,6 +5,8 @@
 
 	<xsl:output method="xml" indent="no"/>
 
+	<xsl:param name="targetFramework"/>
+
 	<xsl:template match="/package">
 
 		<project>
@@ -28,6 +30,9 @@
 
 		</project>
 
+	</xsl:template>
+
+	<xsl:template match="group[@targetFramework != $targetFramework]">
 	</xsl:template>
 
 	<xsl:template match="dependency">

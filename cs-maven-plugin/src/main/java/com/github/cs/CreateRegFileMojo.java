@@ -41,7 +41,7 @@ public class CreateRegFileMojo extends AbstractNetMojo {
 
 		try {
 
-			File regAsmDir = getFrameworkProvider().getCSharpCompiler().getParentFile();
+			File regAsmDir = frameworkProvider.getCSharpCompiler().getParentFile();
 
 			File regAsm = new File(regAsmDir, "RegAsm.exe");
 

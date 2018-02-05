@@ -1,5 +1,6 @@
 package com.github.cs;
 
+import java.io.File;
 import java.util.Map;
 
 /**
@@ -18,5 +19,7 @@ public interface NetFrameworkProviderFactory {
 	 * @return a new NetFrameworkProvider
 	 */
 	NetFrameworkProvider newFrameworkProvider(Map<String, String> configuration);
+
+	FrameworkVersion getFrameworkVersion();
 
 }

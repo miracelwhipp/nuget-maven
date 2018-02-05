@@ -101,11 +101,11 @@
 				<addedToClasspath>false</addedToClasspath>
 			</configuration>
 		</component>
-		<component>
-			<role>org.apache.maven.wagon.Wagon</role>
-			<role-hint>nuget</role-hint>
-			<implementation>com.github.cs.nuget.NuGetWagon</implementation>
-			<instantiation-strategy>per-lookup</instantiation-strategy>
-		</component>
+		<!--<component>-->
+			<!--<role>org.apache.maven.wagon.Wagon</role>-->
+			<!--<role-hint>nuget</role-hint>-->
+			<!--<implementation>com.github.cs.nuget.NuGetWagon</implementation>-->
+			<!--<instantiation-strategy>per-lookup</instantiation-strategy>-->
+		<!--</component>-->
 	</components>
 </component-set>

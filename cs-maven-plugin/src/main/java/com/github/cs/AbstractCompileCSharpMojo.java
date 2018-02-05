@@ -55,7 +55,8 @@ public abstract class AbstractCompileCSharpMojo extends AbstractNetMojo {
 
 		for (Dependency dependency : dllDependencies) {
 
-			references.add(dependency.getArtifact().getFile());
+			File referencedFile = provideFile(dependency, workingDirectory);
+			references.add(referencedFile);
 		}
 
 		references.addAll(Arrays.asList(additionalReferences));
@@ -82,7 +83,7 @@ public abstract class AbstractCompileCSharpMojo extends AbstractNetMojo {
 				outputFile,
 				platform,
 				preprocessorDefines,
-				getFrameworkProvider(),
+				frameworkProvider,
 				frameworkReferences,
 				resources);
 

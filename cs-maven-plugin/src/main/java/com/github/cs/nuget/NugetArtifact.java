@@ -1,9 +1,6 @@
 package com.github.cs.nuget;
 
-import org.apache.maven.wagon.ResourceDoesNotExistException;
-
 import java.util.Locale;
-import java.util.StringJoiner;
 
 /**
  * This bean holds the information needed to download a package from nuget.
@@ -12,18 +9,25 @@ import java.util.StringJoiner;
  */
 public class NugetArtifact {
 
-	private final String id;
+	private final String groupId;
+	private final String artifactId;
 	private final String version;
 	private final String type;
 
-	public NugetArtifact(String id, String version, String type) {
-		this.id = id;
+	private NugetArtifact(String groupId, String artifactId, String version, String type) {
+		this.groupId = groupId;
+		this.artifactId = artifactId;
 		this.version = version;
 		this.type = type;
 	}
 
-	public String getId() {
-		return id;
+
+	public String getArtifactId() {
+		return artifactId;
+	}
+
+	public String getGroupId() {
+		return groupId;
 	}
 
 	public String getVersion() {
@@ -37,27 +41,52 @@ public class NugetArtifact {
 	@Override
 	public String toString() {
 		return "NugetArtifact{" +
-				"id='" + id + '\'' +
+				"groupId='" + groupId + '\'' +
+				", artifactId='" + artifactId + '\'' +
 				", version='" + version + '\'' +
 				", type='" + type + '\'' +
 				'}';
 	}
 
-	public String resourceString() {
-
-		if ("pom".equals(type)) {
-			return id + "/" + version + "/" + id + ".nuspec";
-		}
-
-		return id + "/" + version + "/" + id + "." + version + ".nupkg";
+	public boolean isNugetFile() {
+		return type.equals("nupkg") || type.equals("nuspec");
 	}
 
-	public static NugetArtifact fromMavenResourceString(String resourceName) throws ResourceDoesNotExistException {
+	public boolean isPom() {
+		return type.equals("pom");
+	}
+
+	public String resourceString() {
+
+		if (isPom() || type.equals("nuspec")) {
+			return groupId + "/" + version + "/" + groupId + ".nuspec";
+		}
+
+		return groupId + "/" + version + "/" + groupId + "." + version + ".nupkg";
+	}
+
+	public String artifactName() {
+
+		return artifactId + "." + type;
+	}
+
+	public static NugetArtifact newInstance(String groupId, String artifactId, String version, String type) {
+
+		return new NugetArtifact(
+				groupId.toLowerCase(Locale.ENGLISH),
+				artifactId.toLowerCase(Locale.ENGLISH),
+				version.toLowerCase(Locale.ENGLISH),
+				type.toLowerCase(Locale.ENGLISH)
+		);
+	}
+
+	public static NugetArtifact fromMavenResourceString(String resourceName) {
 
 		String[] parts = resourceName.split("/");
 
 		int artifactIdPosition = parts.length - 3;
-
+		int versionPosition = parts.length - 2;
+		int typePosition = parts.length - 1;
 
 		StringBuilder groupId = new StringBuilder();
 		boolean first = true;
@@ -75,30 +104,12 @@ public class NugetArtifact {
 
 		String artifactId = parts[artifactIdPosition];
 
-		if (!groupId.toString().equals(artifactId)) {
-
-			throw new ResourceDoesNotExistException("resource does not exist : " + resourceName);
-		}
-
-		return fromParts(parts);
-	}
-
-	public static NugetArtifact fromParts(String[] parts) {
-
-		int artifactIdPosition = parts.length - 3;
-		int versionPosition = parts.length - 2;
-		int typePosition = parts.length - 1;
-
-		String artifactId = parts[artifactIdPosition];
-
 		String version = parts[versionPosition];
 
 		int position = parts[typePosition].lastIndexOf(".");
 
 		String type = parts[typePosition].substring(position + 1);
 
-		String id = artifactId.toLowerCase(Locale.ENGLISH);
-
-		return new NugetArtifact(id, version, type);
+		return newInstance(groupId.toString(), artifactId, version, type);
 	}
 }

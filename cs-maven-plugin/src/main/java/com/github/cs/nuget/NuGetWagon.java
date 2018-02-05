@@ -1,6 +1,8 @@
 package com.github.cs.nuget;
 
-import com.github.cs.XmlTransformation;
+import com.github.cs.FrameworkVersion;
+import com.github.cs.NetFrameworkProvider;
+import com.github.cs.XmlUtility;
 import org.apache.maven.wagon.ConnectionException;
 import org.apache.maven.wagon.ResourceDoesNotExistException;
 import org.apache.maven.wagon.TransferFailedException;
@@ -14,9 +16,12 @@ import org.apache.maven.wagon.providers.http.HttpWagon;
 import org.apache.maven.wagon.proxy.ProxyInfo;
 import org.apache.maven.wagon.proxy.ProxyInfoProvider;
 import org.apache.maven.wagon.repository.Repository;
+import org.codehaus.plexus.component.annotations.Component;
+import org.codehaus.plexus.component.annotations.Requirement;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.stream.StreamSource;
 import java.io.File;
@@ -32,24 +37,36 @@ import java.util.zip.ZipInputStream;
 /**
  * This wagon allows downloading dlls deployed in nuget as maven artifacts. It is implemented by simply
  * parsing and adapting the resource to load and delegating to {@link HttpWagon}. It can be used by specifying
- * nuget as protocoll in the url. e.g. nuget://api.nuget.org/v3-flatcontainer/
+ * nuget as protocol in the url. e.g. nuget://api.nuget.org/v3-flatcontainer/
  *
  * @author miracelwhipp
  */
+@Component(role = Wagon.class, hint = "nuget", instantiationStrategy = "singleton")
 public class NuGetWagon implements Wagon {
 
-	private final HttpWagon delegate;
+	public static final String LIBRARY_DIRECTORY = "lib/";
+	public static final String TOOLS_DIRECTORY = "tools/";
 
-	public NuGetWagon() {
-		this.delegate = new HttpWagon();
-	}
+	@Requirement
+	private NetFrameworkProvider frameworkProvider;
+
+	@Requirement(hint = "https")
+	private Wagon delegate;
+
+	@Requirement
+	private NugetPackageDownloadManager downloadManager;
 
 	@Override
 	public void get(String resourceName, File destination) throws TransferFailedException, ResourceDoesNotExistException, AuthorizationException {
 
+		if (resourceName.endsWith(".md5") || resourceName.endsWith(".sha1")) {
+
+			throw new ResourceDoesNotExistException("checksums not supported yet");
+		}
+
 		NugetArtifact nugetArtifact = NugetArtifact.fromMavenResourceString(resourceName);
 
-		delegate.get(nugetArtifact.resourceString(), destination);
+		downloadManager.get(delegate, nugetArtifact, destination);
 
 		transformResult(destination, nugetArtifact);
 	}
@@ -57,9 +74,14 @@ public class NuGetWagon implements Wagon {
 	@Override
 	public boolean getIfNewer(String resourceName, File destination, long timestamp) throws TransferFailedException, ResourceDoesNotExistException, AuthorizationException {
 
+		if (resourceName.endsWith(".md5") || resourceName.endsWith(".sha1")) {
+
+			throw new ResourceDoesNotExistException("checksums not supported yet");
+		}
+
 		NugetArtifact nugetArtifact = NugetArtifact.fromMavenResourceString(resourceName);
 
-		boolean result = delegate.getIfNewer(nugetArtifact.resourceString(), destination, timestamp);
+		boolean result = downloadManager.getIfNewer(delegate, nugetArtifact, destination, timestamp);
 
 		if (!result) {
 
@@ -74,18 +96,7 @@ public class NuGetWagon implements Wagon {
 	@Override
 	public boolean resourceExists(String resourceName) throws TransferFailedException, AuthorizationException {
 
-		String[] parts = resourceName.split("/");
-
-		String groupId = parts[0];
-
-		String artifactId = parts[1];
-
-		if (!groupId.equals(artifactId)) {
-
-			return false;
-		}
-
-		return delegate.resourceExists(NugetArtifact.fromParts(parts).resourceString());
+		return delegate.resourceExists(NugetArtifact.fromMavenResourceString(resourceName).resourceString());
 	}
 
 	@Override
@@ -94,74 +105,221 @@ public class NuGetWagon implements Wagon {
 		return delegate.getFileList(destinationDirectory);
 	}
 
-	private void transformResult(File destination, NugetArtifact nugetArtifact) throws TransferFailedException {
+	private void transformResult(File destination, NugetArtifact nugetArtifact) throws TransferFailedException, ResourceDoesNotExistException {
 
-		if (nugetArtifact.getType().equals("pom")) {
+		if (nugetArtifact.isNugetFile()) {
 
-			try (InputStream source = NuGetWagon.class.getResourceAsStream("/nuspec-to-pom.xsl")) {
+			return;
+		}
 
-				XmlTransformation.transformFile(destination, new StreamSource(source), destination);
+		if (nugetArtifact.isPom()) {
 
-			} catch (IOException | ParserConfigurationException | TransformerException | SAXException e) {
+			transFormToPom(destination);
 
-				throw new TransferFailedException(e.getMessage(), e);
-			}
+			return;
 
-		} else if (nugetArtifact.getType().equals("dll") || nugetArtifact.getType().equals("exe")) {
+		}
 
-			File tempFile = new File(destination.getPath() + ".temp");
+		if (nugetArtifact.getType().equals("dll")) {
 
-			try (ZipInputStream source = new ZipInputStream(new FileInputStream(destination))) {
+			extractLibrary(destination, nugetArtifact);
 
-				for (ZipEntry entry = source.getNextEntry(); entry != null; entry = source.getNextEntry()) {
+			return;
+		}
 
-					if (entry.getName().toLowerCase(Locale.ENGLISH).endsWith(nugetArtifact.getId() + "." + nugetArtifact.getType())) {
+		if (nugetArtifact.getType().equals("exe")) {
 
-						try (FileOutputStream target = new FileOutputStream(tempFile)) {
-							byte[] buffer = new byte[128 * 1024];
+			extractTool(destination, nugetArtifact);
 
-							int bytesRead = 0;
+		}
+	}
 
-							while ((bytesRead = source.read(buffer)) > 0) {
+	private void extractTool(File destination, NugetArtifact nugetArtifact) throws TransferFailedException, ResourceDoesNotExistException {
 
-								target.write(buffer, 0, bytesRead);
-							}
-						}
+		File tempFile = new File(destination.getPath() + ".temp");
 
-						source.closeEntry();
-						break;
+		try (ZipInputStream source = new ZipInputStream(new FileInputStream(destination))) {
+
+			for (ZipEntry entry = source.getNextEntry(); entry != null; entry = source.getNextEntry()) {
+
+				String entryName = entry.getName().toLowerCase(Locale.ENGLISH);
+
+				if (!entryName.startsWith(TOOLS_DIRECTORY)) {
+
+					continue;
+				}
+
+				entryName = entryName.substring(TOOLS_DIRECTORY.length());
+
+				if (!entryName.equals(nugetArtifact.artifactName())) {
+
+					continue;
+				}
+
+				try (FileOutputStream target = new FileOutputStream(tempFile)) {
+					byte[] buffer = new byte[128 * 1024];
+
+					int bytesRead = 0;
+
+					while ((bytesRead = source.read(buffer)) > 0) {
+
+						target.write(buffer, 0, bytesRead);
 					}
-
-					source.closeEntry();
 				}
 
-			} catch (IOException e) {
-
-				throw new TransferFailedException(e.getMessage(), e);
+				break;
 			}
 
-			if (tempFile.exists()) {
+		} catch (IOException e) {
 
-				if (!destination.delete()) {
+			throw new TransferFailedException(e.getMessage(), e);
+		}
 
-					throw new TransferFailedException("cannot delete file " + destination.getAbsolutePath());
+		if (tempFile.exists()) {
+
+			if (!destination.delete()) {
+
+				throw new TransferFailedException("cannot delete file " + destination.getAbsolutePath());
+			}
+
+			if (!tempFile.renameTo(destination)) {
+
+				throw new TransferFailedException("cannot rename file " + tempFile.getAbsolutePath() + " to " + destination.getAbsolutePath());
+			}
+
+		} else {
+
+			throw new ResourceDoesNotExistException("no compatible artifact found in nuget package");
+		}
+
+	}
+
+	private void extractLibrary(File destination, NugetArtifact nugetArtifact) throws TransferFailedException, ResourceDoesNotExistException {
+
+		FrameworkVersion desiredVersion = frameworkProvider.getFrameworkVersion();
+
+		if (desiredVersion == null) {
+
+			desiredVersion = FrameworkVersion.newInstance(4, 7, 1);
+		}
+
+		File tempFile = new File(destination.getPath() + ".temp");
+
+		try (ZipInputStream source = new ZipInputStream(new FileInputStream(destination))) {
+
+			FrameworkVersion extractedVersion = null;
+
+			for (ZipEntry entry = source.getNextEntry(); entry != null; entry = source.getNextEntry()) {
+
+				String entryName = entry.getName().toLowerCase(Locale.ENGLISH);
+
+				if (!entryName.startsWith(LIBRARY_DIRECTORY)) {
+
+					continue;
 				}
 
-				if (!tempFile.renameTo(destination)) {
+				entryName = entryName.substring(LIBRARY_DIRECTORY.length());
 
-					throw new TransferFailedException("cannot rename file " + tempFile.getAbsolutePath() + " to " + destination.getAbsolutePath());
+				int position = entryName.indexOf("/");
+
+				if (position == -1) {
+
+					continue;
 				}
+
+				String artifactName = entryName.substring(position + 1);
+
+				if (!artifactName.equals(nugetArtifact.artifactName())) {
+
+					continue;
+				}
+
+				FrameworkVersion currentVersion = FrameworkVersion.fromShortName(entryName.substring(0, position));
+
+				if (currentVersion == null) {
+
+					continue;
+				}
+
+				if (!desiredVersion.isDownwardsCompatible(currentVersion)) {
+
+					continue;
+				}
+
+				if (extractedVersion != null && !currentVersion.isDownwardsCompatible(extractedVersion)) {
+
+					continue;
+				}
+
+				try (FileOutputStream target = new FileOutputStream(tempFile)) {
+					byte[] buffer = new byte[128 * 1024];
+
+					int bytesRead = 0;
+
+					while ((bytesRead = source.read(buffer)) > 0) {
+
+						target.write(buffer, 0, bytesRead);
+					}
+				}
+
+				extractedVersion = currentVersion;
+				source.closeEntry();
+
+				if (currentVersion.equals(desiredVersion)) {
+
+					break;
+				}
+			}
+
+		} catch (IOException e) {
+
+			throw new TransferFailedException(e.getMessage(), e);
+		}
+
+		if (!tempFile.exists()) {
+
+			//maybe a tool provides this dll
+			extractTool(destination, nugetArtifact);
+
+		} else {
+
+			if (!destination.delete()) {
+
+				throw new TransferFailedException("cannot delete file " + destination.getAbsolutePath());
+			}
+
+			if (!tempFile.renameTo(destination)) {
+
+				throw new TransferFailedException("cannot rename file " + tempFile.getAbsolutePath() + " to " + destination.getAbsolutePath());
 			}
 		}
 	}
 
+	private void transFormToPom(File destination) throws TransferFailedException {
+		try (InputStream source = NuGetWagon.class.getResourceAsStream("/nuspec-to-pom.xsl")) {
+
+			XmlUtility.transformFile(destination, new StreamSource(source), destination, new XmlUtility.ParameterSetter() {
+				@Override
+				public void setParameters(Transformer transformer) {
+					transformer.setParameter("targetFramework", frameworkProvider.getFrameworkVersion().versionedFullName());
+				}
+			});
+
+		} catch (IOException | ParserConfigurationException | TransformerException | SAXException e) {
+
+			throw new TransferFailedException(e.getMessage(), e);
+		}
+	}
+
 	@Override
-	public void put(File source, String destination) throws TransferFailedException, ResourceDoesNotExistException, AuthorizationException {
+	public void put(File source, String destination) throws
+			TransferFailedException, ResourceDoesNotExistException, AuthorizationException {
 		throw new UnsupportedOperationException("nuget wagon is read-only");
 	}
 
 	@Override
-	public void putDirectory(File sourceDirectory, String destinationDirectory) throws TransferFailedException, ResourceDoesNotExistException, AuthorizationException {
+	public void putDirectory(File sourceDirectory, String destinationDirectory) throws
+			TransferFailedException, ResourceDoesNotExistException, AuthorizationException {
 		throw new UnsupportedOperationException("nuget wagon is read-only");
 	}
 
@@ -197,7 +355,8 @@ public class NuGetWagon implements Wagon {
 	}
 
 	@Override
-	public void connect(Repository source, ProxyInfoProvider proxyInfoProvider) throws ConnectionException, AuthenticationException {
+	public void connect(Repository source, ProxyInfoProvider proxyInfoProvider) throws
+			ConnectionException, AuthenticationException {
 
 		adaptRepository(source);
 
@@ -205,7 +364,8 @@ public class NuGetWagon implements Wagon {
 	}
 
 	@Override
-	public void connect(Repository source, AuthenticationInfo authenticationInfo) throws ConnectionException, AuthenticationException {
+	public void connect(Repository source, AuthenticationInfo authenticationInfo) throws
+			ConnectionException, AuthenticationException {
 
 		adaptRepository(source);
 
@@ -213,7 +373,8 @@ public class NuGetWagon implements Wagon {
 	}
 
 	@Override
-	public void connect(Repository source, AuthenticationInfo authenticationInfo, ProxyInfo proxyInfo) throws ConnectionException, AuthenticationException {
+	public void connect(Repository source, AuthenticationInfo authenticationInfo, ProxyInfo proxyInfo) throws
+			ConnectionException, AuthenticationException {
 
 		adaptRepository(source);
 
@@ -221,7 +382,8 @@ public class NuGetWagon implements Wagon {
 	}
 
 	@Override
-	public void connect(Repository source, AuthenticationInfo authenticationInfo, ProxyInfoProvider proxyInfoProvider) throws ConnectionException, AuthenticationException {
+	public void connect(Repository source, AuthenticationInfo authenticationInfo, ProxyInfoProvider
+			proxyInfoProvider) throws ConnectionException, AuthenticationException {
 
 		adaptRepository(source);
 

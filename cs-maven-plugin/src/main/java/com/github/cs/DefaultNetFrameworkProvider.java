@@ -46,28 +46,33 @@ public class DefaultNetFrameworkProvider implements NetFrameworkProvider {
 	}
 
 	@Override
-	public File getNUnitRunner() throws IOException {
-
-		String nUnitRunner = configuration.get("nUnitRunner");
-
-		if (nUnitRunner != null) {
-
-			return new File(nUnitRunner.trim());
-		}
-
-		return new File("nunit3-console.exe");
+	public FrameworkVersion getFrameworkVersion() {
+		return FrameworkVersion.newInstance(4, 5, 0);
 	}
 
-	@Override
-	public File getNUnitLibrary() throws IOException {
-
-		String nUnitLibrary = configuration.get("nUnitLibrary");
-
-		if (nUnitLibrary != null) {
-
-			return new File(nUnitLibrary.trim());
-		}
-
-		return new File("nunit.framework.dll");
-	}
+//	@Override
+//	public File getNUnitRunner() throws IOException {
+//
+//		String nUnitRunner = configuration.get("nUnitRunner");
+//
+//		if (nUnitRunner != null) {
+//
+//			return new File(nUnitRunner.trim());
+//		}
+//
+//		return new File("nunit3-console.exe");
+//	}
+//
+//	@Override
+//	public File getNUnitLibrary() throws IOException {
+//
+//		String nUnitLibrary = configuration.get("nUnitLibrary");
+//
+//		if (nUnitLibrary != null) {
+//
+//			return new File(nUnitLibrary.trim());
+//		}
+//
+//		return new File("nunit.framework.dll");
+//	}
 }
