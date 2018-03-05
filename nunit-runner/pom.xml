@@ -28,6 +28,12 @@
 		</dependency>
 		<dependency>
 			<groupId>nunit.consolerunner</groupId>
+			<artifactId>nunit-agent</artifactId>
+			<version>3.8.0</version>
+			<type>exe</type>
+		</dependency>
+		<dependency>
+			<groupId>nunit.consolerunner</groupId>
 			<artifactId>nunit.engine.api</artifactId>
 			<version>3.8.0</version>
 			<type>dll</type>
@@ -35,6 +41,12 @@
 		<dependency>
 			<groupId>nunit.consolerunner</groupId>
 			<artifactId>nunit.engine</artifactId>
+			<version>3.8.0</version>
+			<type>dll</type>
+		</dependency>
+		<dependency>
+			<groupId>nunit.consolerunner</groupId>
+			<artifactId>Mono.Cecil</artifactId>
 			<version>3.8.0</version>
 			<type>dll</type>
 		</dependency>

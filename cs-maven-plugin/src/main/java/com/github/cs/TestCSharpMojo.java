@@ -52,7 +52,7 @@ public class TestCSharpMojo extends AbstractNetMojo {
 	@Parameter(readonly = true, defaultValue = "${project.build.testOutputDirectory}")
 	private File workingDirectory;
 
-	@Parameter(readonly = true, defaultValue = "${project.artifactId}-${project.version}-tests.dll")
+	@Parameter(readonly = true, defaultValue = "${project.artifactId}-tests.dll")
 	private String testLibrary;
 
 	@Parameter

@@ -45,11 +45,8 @@ public class CompileCSharpTestsMojo extends AbstractCompileCSharpMojo {
 	@Parameter(readonly = true, defaultValue = "${project.build.testOutputDirectory}")
 	private File testOutputDirectory;
 
-	@Parameter(readonly = true, defaultValue = "${project.artifactId}-${project.version}-tests")
+	@Parameter(readonly = true, defaultValue = "${project.artifactId}-tests")
 	private String testOutputFile;
-
-	@Parameter(readonly = true, defaultValue = "${project.artifactId}-${project.version}")
-	private String outputFile;
 
 	@Parameter(readonly = true, defaultValue = "${project.build.directory}")
 	private File targetDirectory;
@@ -73,7 +70,7 @@ public class CompileCSharpTestsMojo extends AbstractCompileCSharpMojo {
 
 		try {
 
-			File assembly = new File(targetDirectory, outputFile + "." + targetType.getFileSuffix());
+			File assembly = new File(targetDirectory, getOutputFile() + "." + targetType.getFileSuffix());
 
 			compile(
 					testOutputDirectory,

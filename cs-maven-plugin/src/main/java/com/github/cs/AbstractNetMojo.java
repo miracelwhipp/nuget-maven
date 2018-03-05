@@ -65,7 +65,7 @@ public abstract class AbstractNetMojo extends AbstractMojo {
 	@Component
 	protected NetFrameworkProvider frameworkProvider;
 
-	@Parameter(readonly = true, defaultValue = "${project.artifactId}-${project.version}")
+	@Parameter(readonly = true, defaultValue = "${project.artifactId}")
 	private String outputFile;
 
 //	protected synchronized NetFrameworkProvider getFrameworkProvider() {
