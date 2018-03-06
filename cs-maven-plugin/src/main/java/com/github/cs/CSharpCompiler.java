@@ -31,6 +31,7 @@ public class CSharpCompiler {
 	private final NetFrameworkProvider frameworkProvider;
 	private final List<String> frameworkReferences;
 	private final List<String> resources;
+	private final File keyFile;
 
 	public CSharpCompiler(
 			Log logger,
@@ -42,7 +43,7 @@ public class CSharpCompiler {
 			String platform,
 			List<String> defines,
 			NetFrameworkProvider frameworkProvider,
-			List<String> frameworkReferences, List<String> resources) {
+			List<String> frameworkReferences, List<String> resources, File keyFile) {
 		this.logger = logger;
 		this.workingDirectory = workingDirectory;
 		this.csSourceDirectories = csSourceDirectories;
@@ -54,6 +55,7 @@ public class CSharpCompiler {
 		this.frameworkProvider = frameworkProvider;
 		this.frameworkReferences = frameworkReferences;
 		this.resources = resources;
+		this.keyFile = keyFile;
 	}
 
 	public File compile() throws MojoFailureException {
@@ -109,6 +111,11 @@ public class CSharpCompiler {
 
 			for (String resource : resources) {
 				processBuilder.command().add("/resource:" + resource);
+			}
+
+			if (keyFile != null) {
+
+				processBuilder.command().add("/keyfile:" + keyFile.getAbsolutePath());
 			}
 
 			logger.debug("executing csc:");

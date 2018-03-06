@@ -36,6 +36,7 @@ public abstract class AbstractCompileCSharpMojo extends AbstractNetMojo {
 			Set<String> allowedScopes,
 			List<String> preprocessorDefines,
 			List<String> resources,
+			File keyfile,
 			File... additionalReferences
 	) throws DependencyResolutionException, MojoFailureException {
 
@@ -84,7 +85,9 @@ public abstract class AbstractCompileCSharpMojo extends AbstractNetMojo {
 				preprocessorDefines,
 				getFrameworkProvider(),
 				frameworkReferences,
-				resources);
+				resources,
+				keyfile
+		);
 
 		return compiler.compile();
 	}

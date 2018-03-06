@@ -83,6 +83,7 @@ public class CompileCSharpTestsMojo extends AbstractCompileCSharpMojo {
 					ALLOWED_SCOPES,
 					preprocessorTestDefines,
 					testResources,
+					null,
 					getFrameworkProvider().getNUnitLibrary(),
 					new File(targetDirectory, outputFile + "." + targetType.getFileSuffix())
 			);

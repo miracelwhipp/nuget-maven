@@ -45,6 +45,9 @@ public class CompileCSharpMojo extends AbstractCompileCSharpMojo {
 	@Parameter
 	private String executableType;
 
+	@Parameter
+	private File keyfile;
+
 	@Component
 	private MavenProjectHelper projectHelper;
 
@@ -86,7 +89,8 @@ public class CompileCSharpMojo extends AbstractCompileCSharpMojo {
 					targetType,
 					ALLOWED_SCOPES,
 					preprocessorDefines,
-					resources
+					resources,
+					keyfile
 			);
 
 			if (assembly == null) {
