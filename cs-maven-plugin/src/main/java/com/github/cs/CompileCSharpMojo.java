@@ -43,7 +43,10 @@ public class CompileCSharpMojo extends AbstractCompileCSharpMojo {
 	private List<String> preprocessorDefines = new ArrayList<>();
 
 	@Parameter
-	private String executableType;
+	private File keyfile;
+
+	@Parameter
+	private List<File> references = new ArrayList<>();
 
 	@Component
 	private MavenProjectHelper projectHelper;
@@ -63,18 +66,6 @@ public class CompileCSharpMojo extends AbstractCompileCSharpMojo {
 				throw new MojoFailureException("unknown target type : " + project.getArtifact().getArtifactHandler().getPackaging());
 			}
 
-			if (targetType == CSharpCompilerTargetType.EXE) {
-
-				if (CSharpCompilerTargetType.APP_CONTAINER.getArgumentId().equals(executableType)) {
-
-					targetType = CSharpCompilerTargetType.APP_CONTAINER;
-
-				} else if (CSharpCompilerTargetType.WINDOWS_EXE.getArgumentId().equals(executableType)) {
-
-					targetType = CSharpCompilerTargetType.WINDOWS_EXE;
-				}
-			}
-
 			String outputFile = getOutputFile();
 
 			File assembly = compile(
@@ -86,7 +77,9 @@ public class CompileCSharpMojo extends AbstractCompileCSharpMojo {
 					targetType,
 					ALLOWED_SCOPES,
 					preprocessorDefines,
-					resources
+					resources,
+					keyfile,
+					references
 			);
 
 			if (assembly == null) {

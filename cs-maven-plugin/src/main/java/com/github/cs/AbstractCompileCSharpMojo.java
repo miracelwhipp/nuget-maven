@@ -25,6 +25,8 @@ public abstract class AbstractCompileCSharpMojo extends AbstractNetMojo {
 	@Parameter
 	protected String platform;
 
+	@Parameter(defaultValue = "false")
+	protected boolean unsafe;
 
 	protected File compile(
 			File workingDirectory,
@@ -36,7 +38,37 @@ public abstract class AbstractCompileCSharpMojo extends AbstractNetMojo {
 			Set<String> allowedScopes,
 			List<String> preprocessorDefines,
 			List<String> resources,
+			File keyfile,
 			File... additionalReferences
+	) throws DependencyResolutionException, MojoFailureException {
+
+		return compile(
+				workingDirectory,
+				csSourceDirectory,
+				generatedSourceDirectory,
+				additionalSourceDirectories,
+				outputFile,
+				targetType,
+				allowedScopes,
+				preprocessorDefines,
+				resources,
+				keyfile,
+				Arrays.asList(additionalReferences)
+		);
+	}
+
+	protected File compile(
+			File workingDirectory,
+			File csSourceDirectory,
+			File generatedSourceDirectory,
+			List<String> additionalSourceDirectories,
+			String outputFile,
+			CSharpCompilerTargetType targetType,
+			Set<String> allowedScopes,
+			List<String> preprocessorDefines,
+			List<String> resources,
+			File keyfile,
+			List<File> additionalReferences
 	) throws DependencyResolutionException, MojoFailureException {
 
 		if (!workingDirectory.exists()) {
@@ -59,7 +91,7 @@ public abstract class AbstractCompileCSharpMojo extends AbstractNetMojo {
 			references.add(referencedFile);
 		}
 
-		references.addAll(Arrays.asList(additionalReferences));
+		references.addAll(additionalReferences);
 
 		List<File> sourceDirectories = new ArrayList<>();
 
@@ -85,7 +117,9 @@ public abstract class AbstractCompileCSharpMojo extends AbstractNetMojo {
 				preprocessorDefines,
 				frameworkProvider,
 				frameworkReferences,
-				resources);
+				resources,
+				keyfile,
+				unsafe);
 
 		return compiler.compile();
 	}

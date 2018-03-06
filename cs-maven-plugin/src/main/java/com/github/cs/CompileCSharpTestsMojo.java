@@ -61,7 +61,7 @@ public class CompileCSharpTestsMojo extends AbstractCompileCSharpMojo {
 
 		String target = project.getArtifact().getArtifactHandler().getPackaging();
 
-		CSharpCompilerTargetType targetType = CSharpCompilerTargetType.fromString(target);
+		CSharpCompilerTargetType targetType = getTargetType();
 
 		if (targetType == null) {
 
@@ -82,7 +82,9 @@ public class CompileCSharpTestsMojo extends AbstractCompileCSharpMojo {
 					ALLOWED_SCOPES,
 					preprocessorTestDefines,
 					testResources,
+					null,
 					provideFile(assembly, project.getVersion(), testOutputDirectory)
+
 			);
 
 		} catch (DependencyResolutionException e) {

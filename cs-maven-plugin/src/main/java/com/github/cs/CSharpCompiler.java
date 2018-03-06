@@ -31,6 +31,8 @@ public class CSharpCompiler {
 	private final NetFrameworkProvider frameworkProvider;
 	private final List<String> frameworkReferences;
 	private final List<String> resources;
+	private final File keyFile;
+	private final boolean unsafe;
 
 	public CSharpCompiler(
 			Log logger,
@@ -42,7 +44,11 @@ public class CSharpCompiler {
 			String platform,
 			List<String> defines,
 			NetFrameworkProvider frameworkProvider,
-			List<String> frameworkReferences, List<String> resources) {
+			List<String> frameworkReferences,
+			List<String> resources,
+			File keyFile,
+			boolean unsafe
+	) {
 		this.logger = logger;
 		this.workingDirectory = workingDirectory;
 		this.csSourceDirectories = csSourceDirectories;
@@ -54,6 +60,8 @@ public class CSharpCompiler {
 		this.frameworkProvider = frameworkProvider;
 		this.frameworkReferences = frameworkReferences;
 		this.resources = resources;
+		this.keyFile = keyFile;
+		this.unsafe = unsafe;
 	}
 
 	public File compile() throws MojoFailureException {
@@ -67,6 +75,10 @@ public class CSharpCompiler {
 			processBuilder.command().add("/nostdlib");
 			processBuilder.command().add("/noconfig");
 			processBuilder.command().add("/utf8output");
+
+			if (unsafe) {
+				processBuilder.command().add("/unsafe");
+			}
 
 			if (platform != null) {
 				processBuilder.command().add("/platform:" + platform);
@@ -104,11 +116,23 @@ public class CSharpCompiler {
 
 			for (File referenceFile : referenceFiles) {
 
-				processBuilder.command().add("/reference:" + referenceFile.getAbsolutePath());
+				if (referenceFile.getName().endsWith(".netmodule") || referenceFile.getName().endsWith(".obj")) {
+
+					processBuilder.command().add("/addmodule:" + referenceFile.getAbsolutePath());
+
+				} else {
+
+					processBuilder.command().add("/reference:" + referenceFile.getAbsolutePath());
+				}
 			}
 
 			for (String resource : resources) {
 				processBuilder.command().add("/resource:" + resource);
+			}
+
+			if (keyFile != null) {
+
+				processBuilder.command().add("/keyfile:" + keyFile.getAbsolutePath());
 			}
 
 			logger.debug("executing csc:");

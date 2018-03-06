@@ -68,7 +68,9 @@ public abstract class AbstractNetMojo extends AbstractMojo {
 	@Parameter(readonly = true, defaultValue = "${project.artifactId}")
 	private String outputFile;
 
-//	protected synchronized NetFrameworkProvider getFrameworkProvider() {
+
+	@Parameter
+	private String targetType;//	protected synchronized NetFrameworkProvider getFrameworkProvider() {
 //
 //		if (frameworkProvider != null) {
 //
@@ -175,6 +177,14 @@ public abstract class AbstractNetMojo extends AbstractMojo {
 	}
 
 	protected CSharpCompilerTargetType getTargetType() {
+
+		CSharpCompilerTargetType result = CSharpCompilerTargetType.fromString(targetType);
+
+		if (result != null) {
+
+			return result;
+		}
+
 		String target = project.getArtifact().getArtifactHandler().getPackaging();
 
 		return CSharpCompilerTargetType.fromString(target);

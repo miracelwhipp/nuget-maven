@@ -34,6 +34,11 @@ public enum CSharpCompilerTargetType {
 
 	public static CSharpCompilerTargetType fromString(String name) {
 
+		if (name == null) {
+
+			return null;
+		}
+
 		for (CSharpCompilerTargetType member : EnumSet.allOf(CSharpCompilerTargetType.class)) {
 
 			if (member.getArgumentId().equals(name)) {
