@@ -90,7 +90,7 @@ public class TestCSharpMojo extends AbstractNetMojo {
 
 			String targetString = project.getArtifact().getArtifactHandler().getPackaging();
 
-			CSharpCompilerTargetType targetType = CSharpCompilerTargetType.fromString(targetString);
+			CSharpCompilerTargetType targetType = getTargetType();
 
 			if (targetType == null) {
 
