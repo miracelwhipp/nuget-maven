@@ -46,6 +46,7 @@ public class NuGetWagon implements Wagon {
 	public static final String LIBRARY_DIRECTORY = "lib/";
 	public static final String TOOLS_DIRECTORY = "tools/";
 	public static final String REFERENCES_DIRECTORY = "ref/";
+	public static final String SUFFIX_MD5 = ".md5";
 
 	@Requirement(optional = true)
 	private NetFrameworkProvider frameworkProvider;
@@ -59,9 +60,15 @@ public class NuGetWagon implements Wagon {
 	@Override
 	public synchronized void get(String resourceName, File destination) throws TransferFailedException, ResourceDoesNotExistException, AuthorizationException {
 
-		if (resourceName.endsWith(".md5") || resourceName.endsWith(".sha1")) {
+		if (resourceName.endsWith(".sha1")) {
 
-			throw new ResourceDoesNotExistException("checksums not supported yet");
+			throw new ResourceDoesNotExistException("sha1 not supported.");
+		}
+
+		if (resourceName.endsWith(SUFFIX_MD5)) {
+
+			downloadManager.getMd5Hash(getRepository(), NugetArtifact.fromMavenResourceString(resourceName.substring(0, resourceName.length() - SUFFIX_MD5.length())), destination);
+			return;
 		}
 
 		NugetArtifact nugetArtifact = NugetArtifact.fromMavenResourceString(resourceName);
@@ -195,47 +202,6 @@ public class NuGetWagon implements Wagon {
 
 			throw new TransferFailedException(e.getMessage(), e);
 		}
-
-//		File tempFile = new File(destination.getPath() + ".temp");
-//
-//		try (ZipInputStream source = new ZipInputStream(new FileInputStream(destination))) {
-//
-//			for (ZipEntry entry = source.getNextEntry(); entry != null; entry = source.getNextEntry()) {
-//
-//				String entryName = entry.getName().toLowerCase(Locale.ENGLISH);
-//
-//				if (!entryName.startsWith(TOOLS_DIRECTORY)) {
-//
-//					continue;
-//				}
-//
-//				entryName = entryName.substring(TOOLS_DIRECTORY.length());
-//
-//				if (!entryName.equals(nugetArtifact.artifactName())) {
-//
-//					continue;
-//				}
-//
-//				try (FileOutputStream target = new FileOutputStream(tempFile)) {
-//					byte[] buffer = new byte[128 * 1024];
-//
-//					int bytesRead = 0;
-//
-//					while ((bytesRead = source.read(buffer)) > 0) {
-//
-//						target.write(buffer, 0, bytesRead);
-//					}
-//				}
-//
-//				break;
-//			}
-//
-//		} catch (IOException e) {
-//
-//			throw new TransferFailedException(e.getMessage(), e);
-//		}
-
-
 	}
 
 	private void extractLibrary(File downloadPackageFile, NugetArtifact nugetArtifact, File destination)
@@ -260,107 +226,6 @@ public class NuGetWagon implements Wagon {
 
 			throw new TransferFailedException(e.getMessage(), e);
 		}
-
-
-//		FrameworkVersion desiredVersion = getFrameworkProvider().getFrameworkVersion();
-//
-//		if (desiredVersion == null) {
-//
-//			desiredVersion = FrameworkVersion.newInstance(4, 7, 1);
-//		}
-//
-//		File tempFile = new File(destination.getPath() + ".temp");
-//
-//		try (ZipInputStream source = new ZipInputStream(new FileInputStream(destination))) {
-//
-//			FrameworkVersion extractedVersion = null;
-//
-//			for (ZipEntry entry = source.getNextEntry(); entry != null; entry = source.getNextEntry()) {
-//
-//				String entryName = entry.getName().toLowerCase(Locale.ENGLISH);
-//
-//				if (!entryName.startsWith(LIBRARY_DIRECTORY) && !entryName.startsWith(REFERENCES_DIRECTORY)) {
-//
-//					continue;
-//				}
-//
-//				int position = entryName.indexOf("/");
-//
-//				entryName = entryName.substring(position + 1);
-//
-//				position = entryName.indexOf("/");
-//
-//				if (position == -1) {
-//
-//					continue;
-//				}
-//
-//				String artifactName = entryName.substring(position + 1);
-//
-//				if (!artifactName.equals(nugetArtifact.artifactName())) {
-//
-//					continue;
-//				}
-//
-//				FrameworkVersion currentVersion = FrameworkVersion.fromShortName(entryName.substring(0, position));
-//
-//				if (currentVersion == null) {
-//
-//					continue;
-//				}
-//
-//				if (!desiredVersion.isDownwardsCompatible(currentVersion)) {
-//
-//					continue;
-//				}
-//
-//				if (extractedVersion != null && !currentVersion.isDownwardsCompatible(extractedVersion)) {
-//
-//					continue;
-//				}
-//
-//				try (FileOutputStream target = new FileOutputStream(tempFile)) {
-//					byte[] buffer = new byte[128 * 1024];
-//
-//					int bytesRead = 0;
-//
-//					while ((bytesRead = source.read(buffer)) > 0) {
-//
-//						target.write(buffer, 0, bytesRead);
-//					}
-//				}
-//
-//				extractedVersion = currentVersion;
-//				source.closeEntry();
-//
-//				if (currentVersion.equals(desiredVersion)) {
-//
-//					break;
-//				}
-//			}
-//
-//		} catch (IOException e) {
-//
-//			throw new TransferFailedException(e.getMessage(), e);
-//		}
-//
-//		if (!tempFile.exists()) {
-//
-//			//maybe a tool provides this dll
-//			extractTool(downloadPackageFile, nugetArtifact, destination);
-//
-//		} else {
-//
-//			if (!destination.delete()) {
-//
-//				throw new TransferFailedException("cannot delete file " + destination.getAbsolutePath());
-//			}
-//
-//			if (!tempFile.renameTo(destination)) {
-//
-//				throw new TransferFailedException("cannot rename file " + tempFile.getAbsolutePath() + " to " + destination.getAbsolutePath());
-//			}
-//		}
 	}
 
 	private File findLibrary(final NugetArtifact nugetArtifact, final FrameworkVersion desiredVersion,

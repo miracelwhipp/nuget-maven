@@ -36,6 +36,11 @@ public class Streams {
 
 			for (ZipEntry entry = zipStream.getNextEntry(); entry != null; entry = zipStream.getNextEntry()) {
 
+				if (entry.isDirectory()) {
+
+					continue;
+				}
+
 				File targetFile = new File(targetDirectory, entry.getName());
 
 				File parentFile = targetFile.getParentFile();

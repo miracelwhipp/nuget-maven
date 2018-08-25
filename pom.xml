@@ -10,6 +10,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<xunit.version>2.4.0</xunit.version>
 	</properties>
 
 	<scm>
@@ -41,6 +42,7 @@
 		<module>cs-maven-common</module>
 		<module>xunit-runner</module>
 		<module>nunit-runner</module>
+		<module>xunit</module>
 	</modules>
 
 	<dependencyManagement>
@@ -124,6 +126,10 @@
 						<source>1.7</source>
 						<target>1.7</target>
 					</configuration>
+				</plugin>
+				<plugin>
+					<artifactId>maven-antrun-plugin</artifactId>
+					<version>1.8</version>
 				</plugin>
 			</plugins>
 		</pluginManagement>

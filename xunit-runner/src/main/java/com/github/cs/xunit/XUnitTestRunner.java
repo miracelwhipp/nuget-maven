@@ -73,7 +73,8 @@ public class XUnitTestRunner implements NetTestRunner {
 
 			if (exitValue != 0) {
 
-				logger.info("xUnit runner finished with exit value " + exitValue);
+				logger.debug("xUnit runner finished with exit value " + exitValue);
+				throw new TestExecutionException("xunit runner failed with exit value " + exitValue);
 			}
 
 			if (!completeResultFile.getAbsoluteFile().exists()) {

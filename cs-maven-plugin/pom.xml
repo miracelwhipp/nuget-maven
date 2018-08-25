@@ -78,7 +78,6 @@
 			<groupId>com.github.cs</groupId>
 			<artifactId>nuget-cs-compiler</artifactId>
 			<version>${project.version}</version>
-			<type>pom</type>
 		</dependency>
 
 	</dependencies>

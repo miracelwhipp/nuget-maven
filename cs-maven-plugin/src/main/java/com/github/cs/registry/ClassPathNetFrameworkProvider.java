@@ -46,7 +46,6 @@ public class ClassPathNetFrameworkProvider implements NetFrameworkProvider {
 			if (resourceFile == null || !resourceFile.exists()) {
 
 				return FrameworkVersion.defaultVersion();
-//				throw new IllegalStateException("classpath does not contain dot-net framework");
 			}
 
 			Document nuSpec = Xml.parse(resourceFile, false);

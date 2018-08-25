@@ -12,10 +12,6 @@
 
 	<artifactId>xunit-runner</artifactId>
 
-	<properties>
-		<xunit.version>2.4.0</xunit.version>
-	</properties>
-
 	<dependencies>
 		<dependency>
 			<groupId>com.github.cs</groupId>
@@ -60,14 +56,13 @@
 			</plugin>
 			<plugin>
 				<artifactId>maven-antrun-plugin</artifactId>
-				<version>1.8</version>
 				<executions>
 					<execution>
 						<id>get-xunit-runner</id>
 						<phase>prepare-package</phase>
 						<configuration>
 							<tasks>
-								<echo message="unzipping file"/>
+								<echo message="getting xunit runner"/>
 								<get
 										src="https://api.nuget.org/v3-flatcontainer/xunit.runner.console/${xunit.version}/xunit.runner.console.${xunit.version}.nupkg"
 										dest="${project.build.directory}/xunit.runner.console.zip"
