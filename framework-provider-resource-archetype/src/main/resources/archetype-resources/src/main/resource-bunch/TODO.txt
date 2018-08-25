@@ -1,2 +1,0 @@
-add .Net Framework in "framework" and nunit in "n-unit"
-also adapt NetFrameworkResourceExtractor to hold the correct (sub-) directory values

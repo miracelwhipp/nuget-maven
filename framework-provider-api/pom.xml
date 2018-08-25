@@ -18,6 +18,11 @@
 			<artifactId>Saxon-HE</artifactId>
 			<version>9.7.0-7</version>
 		</dependency>
+
+		<dependency>
+			<groupId>org.eclipse.aether</groupId>
+			<artifactId>aether-api</artifactId>
+		</dependency>
 	</dependencies>
 
 

@@ -19,7 +19,7 @@ public class FrameworkVersion {
 			Pattern.compile("(?<abbreviation>[a-zA-Z]*)" +
 					"(?:(?<longMajor>[0-9]+)\\.|(?<shortMajor>[0-9]))" +
 					"(?:(?<longMinor>[0-9]+)\\.|(?<shortMinor>[0-9]))" +
-					"(?:(?<longPatch>[0-9]+)\\.|(?<shortPatch>[0-9]))?");
+					"(?:(?<longPatch>[0-9]+)\\.|(?<shortPatch>[0-9]))?(-(?<identifier>[0-9A-Za-z]+))*");
 
 	private final String name;
 	private final String abbreviation;
@@ -58,7 +58,8 @@ public class FrameworkVersion {
 
 	public String versionedToken() {
 
-		return abbreviation + major + minor + (patch != 0 ? patch : "");
+		return abbreviation + major + "." + minor;
+//		return abbreviation + major + minor + (patch != 0 ? patch : "");
 	}
 
 	public String versionedShortName() {
@@ -156,6 +157,11 @@ public class FrameworkVersion {
 		return new FrameworkVersion(name, abbreviation, major, minor, patch);
 	}
 
+	public static FrameworkVersion defaultVersion() {
+
+		return new FrameworkVersion(".NETStandard", "netstandard", 2, 0, 0);
+	}
+
 	public static FrameworkVersion fromShortName(String value) {
 
 		Matcher matcher = VERSION_PATTERN.matcher(value);
@@ -214,11 +220,11 @@ public class FrameworkVersion {
 	static {
 
 		FULL_NAME_BY_SHORT_NAME.put("net", ".NETFramework");
-		FULL_NAME_BY_SHORT_NAME.put("netcore", "Microsoft Store");
+		FULL_NAME_BY_SHORT_NAME.put("netcore", ".NETCoreApp");
 		FULL_NAME_BY_SHORT_NAME.put("netfm", ".NETMicroFramework");
 		FULL_NAME_BY_SHORT_NAME.put("win", "Windows");
 		FULL_NAME_BY_SHORT_NAME.put("sl", "Silverlight");
-		FULL_NAME_BY_SHORT_NAME.put("netstandard", ".NETStandart");
+		FULL_NAME_BY_SHORT_NAME.put("netstandard", ".NETStandard");
 
 	}
 }

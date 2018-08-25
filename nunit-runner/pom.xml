@@ -11,44 +11,17 @@
 	</parent>
 
 	<artifactId>nunit-runner</artifactId>
-	<packaging>pom</packaging>
 
 	<dependencies>
 		<dependency>
-			<groupId>nunit</groupId>
-			<artifactId>nunit.framework</artifactId>
-			<version>3.8.0</version>
-			<type>dll</type>
+			<groupId>com.github.cs</groupId>
+			<artifactId>cs-maven-common</artifactId>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>nunit.consolerunner</groupId>
-			<artifactId>nunit3-console</artifactId>
-			<version>3.8.0</version>
-			<type>exe</type>
-		</dependency>
-		<dependency>
-			<groupId>nunit.consolerunner</groupId>
-			<artifactId>nunit-agent</artifactId>
-			<version>3.8.0</version>
-			<type>exe</type>
-		</dependency>
-		<dependency>
-			<groupId>nunit.consolerunner</groupId>
-			<artifactId>nunit.engine.api</artifactId>
-			<version>3.8.0</version>
-			<type>dll</type>
-		</dependency>
-		<dependency>
-			<groupId>nunit.consolerunner</groupId>
-			<artifactId>nunit.engine</artifactId>
-			<version>3.8.0</version>
-			<type>dll</type>
-		</dependency>
-		<dependency>
-			<groupId>nunit.consolerunner</groupId>
-			<artifactId>Mono.Cecil</artifactId>
-			<version>3.8.0</version>
-			<type>dll</type>
+			<groupId>com.github.cs</groupId>
+			<artifactId>net-framework-provider-api</artifactId>
+			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
 

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.github.cs</groupId>
+		<artifactId>cs-maven</artifactId>
+		<version>2.0-SNAPSHOT</version>
+	</parent>
+
+	<artifactId>nuget-cs-compiler</artifactId>
+	<packaging>pom</packaging>
+
+	<properties>
+		<microsoft.net.compilers.version>2.8.0</microsoft.net.compilers.version>
+		<netstandard.library.version>2.0.3</netstandard.library.version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>microsoft.net.compilers</groupId>
+			<artifactId>microsoft.net.compilers</artifactId>
+			<version>${microsoft.net.compilers.version}</version>
+			<type>nupkg</type>
+		</dependency>
+		<dependency>
+			<groupId>NETStandard.Library</groupId>
+			<artifactId>NETStandard.Library</artifactId>
+			<version>${netstandard.library.version}</version>
+			<type>nupkg</type>
+		</dependency>
+	</dependencies>
+
+	<repositories>
+		<repository>
+			<id>nuget</id>
+			<name>microsoft nuget repository</name>
+			<url>nuget://api.nuget.org/v3-flatcontainer/</url>
+		</repository>
+	</repositories>
+
+</project>

@@ -1,15 +1,21 @@
 package com.github.cs;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-
+import com.github.cs.compile.AssemblyFileProperties;
+import com.github.cs.compile.CSharpCompiler;
+import com.github.cs.compile.CSharpCompilerOptions;
+import com.github.cs.compile.SourceFiles;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.DependencyResolutionException;
 import org.eclipse.aether.graph.Dependency;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 
 /**
  * This abstract class works as base class for maven goals that compile c# code. It collects common parameters and
@@ -20,7 +26,7 @@ import org.eclipse.aether.graph.Dependency;
 public abstract class AbstractCompileCSharpMojo extends AbstractNetMojo {
 
 	@Parameter
-	protected List<String> frameworkReferences;
+	protected List<String> frameworkReferences = Collections.singletonList("netstandard");
 
 	@Parameter
 	protected String platform;
@@ -33,6 +39,7 @@ public abstract class AbstractCompileCSharpMojo extends AbstractNetMojo {
 			File csSourceDirectory,
 			File generatedSourceDirectory,
 			List<String> additionalSourceDirectories,
+			List<String> frameworkReferences,
 			String outputFile,
 			CSharpCompilerTargetType targetType,
 			Set<String> allowedScopes,
@@ -47,6 +54,7 @@ public abstract class AbstractCompileCSharpMojo extends AbstractNetMojo {
 				csSourceDirectory,
 				generatedSourceDirectory,
 				additionalSourceDirectories,
+				frameworkReferences,
 				outputFile,
 				targetType,
 				allowedScopes,
@@ -62,6 +70,7 @@ public abstract class AbstractCompileCSharpMojo extends AbstractNetMojo {
 			File csSourceDirectory,
 			File generatedSourceDirectory,
 			List<String> additionalSourceDirectories,
+			List<String> frameworkReferences,
 			String outputFile,
 			CSharpCompilerTargetType targetType,
 			Set<String> allowedScopes,
@@ -71,57 +80,58 @@ public abstract class AbstractCompileCSharpMojo extends AbstractNetMojo {
 			List<File> additionalReferences
 	) throws DependencyResolutionException, MojoFailureException {
 
-		if (!workingDirectory.exists()) {
+		try {
 
-			workingDirectory.mkdirs();
-		}
+			if (!workingDirectory.exists()) {
 
-		if (!workingDirectory.isDirectory()) {
-
-			throw new MojoFailureException("cannot execute compiler in " + workingDirectory.getAbsolutePath() + " - it is a file.");
-		}
-
-		List<Dependency> dllDependencies = getDllDependencies(allowedScopes);
-
-		List<File> references = new ArrayList<>();
-
-		for (Dependency dependency : dllDependencies) {
-
-			File referencedFile = provideFile(dependency, workingDirectory);
-			references.add(referencedFile);
-		}
-
-		references.addAll(additionalReferences);
-
-		List<File> sourceDirectories = new ArrayList<>();
-
-		sourceDirectories.add(csSourceDirectory);
-		sourceDirectories.add(generatedSourceDirectory);
-
-		if (additionalSourceDirectories != null) {
-
-			for (String directory : additionalSourceDirectories) {
-
-				sourceDirectories.add(new File(directory));
+				workingDirectory.mkdirs();
 			}
+
+			if (!workingDirectory.isDirectory()) {
+
+				throw new MojoFailureException("cannot execute compiler in " + workingDirectory.getAbsolutePath() + " - it is a file.");
+			}
+
+			List<Dependency> dllDependencies = getDllDependencies(allowedScopes);
+
+			List<File> references = new ArrayList<>();
+
+			for (Dependency dependency : dllDependencies) {
+
+				File referencedFile = DependencyProvider.provideFile(dependency, workingDirectory);
+				references.add(referencedFile);
+			}
+
+			references.addAll(additionalReferences);
+
+			List<File> sourceDirectories = new ArrayList<>();
+
+			sourceDirectories.add(csSourceDirectory);
+			sourceDirectories.add(generatedSourceDirectory);
+
+			if (additionalSourceDirectories != null) {
+
+				for (String directory : additionalSourceDirectories) {
+
+					sourceDirectories.add(new File(directory));
+				}
+			}
+
+			CSharpCompiler compiler = new CSharpCompiler(
+					new SourceFiles(workingDirectory, sourceDirectories, references, frameworkReferences, resources, keyfile),
+					new CSharpCompilerOptions(preprocessorDefines, unsafe),
+					new AssemblyFileProperties(targetType, outputFile, platform),
+					getLog(),
+					getFrameworkProvider(),
+					getCompilerProvider()
+			);
+
+			return compiler.compile();
+
+		} catch (IOException e) {
+
+			throw new MojoFailureException(e.getMessage(), e);
 		}
-
-		CSharpCompiler compiler = new CSharpCompiler(
-				getLog(),
-				workingDirectory,
-				sourceDirectories,
-				references,
-				targetType,
-				outputFile,
-				platform,
-				preprocessorDefines,
-				frameworkProvider,
-				frameworkReferences,
-				resources,
-				keyfile,
-				unsafe);
-
-		return compiler.compile();
 	}
 
 }

@@ -51,6 +51,8 @@ public class CompileCSharpTestsMojo extends AbstractCompileCSharpMojo {
 	@Parameter(readonly = true, defaultValue = "${project.build.directory}")
 	private File targetDirectory;
 
+	@Parameter
+	private List<String> testFrameworkReferences = new ArrayList<>();
 
 	private static final Set<String> ALLOWED_SCOPES =
 			Collections.unmodifiableSet(new HashSet<>(Arrays.asList("compile", "provided", "system", "test")));
@@ -72,22 +74,26 @@ public class CompileCSharpTestsMojo extends AbstractCompileCSharpMojo {
 
 			File assembly = new File(targetDirectory, getOutputFile() + "." + targetType.getFileSuffix());
 
+			List<String> usedFrameworkReferences = new ArrayList<>();
+			usedFrameworkReferences.addAll(frameworkReferences);
+			usedFrameworkReferences.addAll(testFrameworkReferences);
+
 			compile(
 					testOutputDirectory,
 					csTestSourceDirectory,
 					generatedTestSourceDirectory,
 					additionalTestSourceDirectories,
+					usedFrameworkReferences,
 					testOutputFile,
 					CSharpCompilerTargetType.LIBRARY,
 					ALLOWED_SCOPES,
 					preprocessorTestDefines,
 					testResources,
 					null,
-					provideFile(assembly, project.getVersion(), testOutputDirectory)
-
+					DependencyProvider.provideFile(assembly, project.getVersion(), testOutputDirectory)
 			);
 
-		} catch (DependencyResolutionException e) {
+		} catch (IOException | DependencyResolutionException e) {
 
 			throw new MojoFailureException(e.getMessage(), e);
 		}

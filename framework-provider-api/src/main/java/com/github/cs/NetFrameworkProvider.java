@@ -4,41 +4,20 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * This interface provides methods to locate a c# compiler and an according ms core library.
+ * This interface provides methods to locate an ms core library.
  *
  * @author miracelwhipp
  */
 public interface NetFrameworkProvider {
 
 	/**
-	 * This method returns the location of the c# compiler.
+	 * This method returns the file name of a given frame work library.
 	 *
-	 * @return the location of the c# compiler
-	 */
-	File getCSharpCompiler() throws IOException;
-
-	/**
-	 * This method returns the directory where the .Net framework libraries are located.
-	 *
+	 * @param name the name of the framework library to get.
 	 * @return the location of the .Net framework libraries
 	 */
-	File getFrameworkLibraryPath() throws IOException;
+	File getFrameworkLibrary(String name) throws IOException;
 
 	FrameworkVersion getFrameworkVersion();
-
-//	/**
-//	 * This method returns the location of the nunit runner executable.
-//	 *
-//	 * @return the location of the nunit runner executable
-//	 */
-//	File getNUnitRunner() throws IOException;
-//
-//	/**
-//	 * This method returns the location of the nunit core library.
-//	 *
-//	 * @return the location of the nunit core library
-//	 * @throws IOException
-//	 */
-//	File getNUnitLibrary() throws IOException;
 
 }

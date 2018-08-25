@@ -5,11 +5,13 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProjectHelper;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 
 /**
  * This goal generates a .reg file for easy registration of the assemblies COM components, if the assembly is a COM dll.
@@ -41,9 +43,16 @@ public class CreateRegFileMojo extends AbstractNetMojo {
 
 		try {
 
-			File regAsmDir = frameworkProvider.getCSharpCompiler().getParentFile();
+			File regAsmDir = getCompilerProvider().getCSharpCompiler().getParentFile();
 
 			File regAsm = new File(regAsmDir, "RegAsm.exe");
+
+			if (!regAsm.exists()) {
+
+				// seems regasm cannot be found in nuget.
+				// just try without directory...
+				regAsm = new File("RegAsm.exe");
+			}
 
 			ProcessBuilder processBuilder = new ProcessBuilder(regAsm.getAbsolutePath());
 

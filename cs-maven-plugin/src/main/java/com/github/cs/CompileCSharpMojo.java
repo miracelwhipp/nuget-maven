@@ -73,6 +73,7 @@ public class CompileCSharpMojo extends AbstractCompileCSharpMojo {
 					csSourceDirectory,
 					getGeneratedSourceDirectory(),
 					additionalSourceDirectories,
+					frameworkReferences,
 					outputFile,
 					targetType,
 					ALLOWED_SCOPES,
