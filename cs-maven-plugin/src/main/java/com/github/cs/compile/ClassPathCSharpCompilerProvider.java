@@ -18,7 +18,7 @@ public class ClassPathCSharpCompilerProvider implements CSharpCompilerProvider {
 	private File csharpCompiler;
 
 	@Override
-	public File getCSharpCompiler() throws IOException {
+	public synchronized File getCSharpCompiler() throws IOException {
 
 		if (csharpCompiler == null) {
 
