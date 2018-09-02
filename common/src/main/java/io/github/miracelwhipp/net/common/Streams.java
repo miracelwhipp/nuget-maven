@@ -1,8 +1,6 @@
-package com.github.cs;
+package io.github.miracelwhipp.net.common;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.codehaus.plexus.util.IOUtil;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;

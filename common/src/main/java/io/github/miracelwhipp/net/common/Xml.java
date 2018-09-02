@@ -1,4 +1,4 @@
-package com.github.cs;
+package io.github.miracelwhipp.net.common;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;

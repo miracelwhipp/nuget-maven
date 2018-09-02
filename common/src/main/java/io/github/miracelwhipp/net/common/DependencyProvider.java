@@ -1,4 +1,4 @@
-package com.github.cs;
+package io.github.miracelwhipp.net.common;
 
 import org.apache.maven.project.DefaultDependencyResolutionRequest;
 import org.apache.maven.project.DependencyResolutionException;

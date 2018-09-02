@@ -1,4 +1,4 @@
-package com.github.cs;
+package io.github.miracelwhipp.net.provider;
 
 /**
  * This exception indicates a problem while running tests.

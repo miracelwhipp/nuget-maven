@@ -1,9 +1,8 @@
-package com.github.cs.nuget;
+package io.github.miracelwhipp.net.nuget.plugin;
 
-import com.github.cs.WagonArtifact;
+import io.github.miracelwhipp.net.common.WagonArtifact;
 
 import java.io.File;
-import java.util.Locale;
 
 /**
  * This bean holds the information needed to download a package from nuget.

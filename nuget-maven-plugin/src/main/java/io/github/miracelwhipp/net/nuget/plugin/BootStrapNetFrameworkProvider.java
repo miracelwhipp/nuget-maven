@@ -1,7 +1,7 @@
-package com.github.cs.nuget;
+package io.github.miracelwhipp.net.nuget.plugin;
 
-import com.github.cs.FrameworkVersion;
-import com.github.cs.NetFrameworkProvider;
+import io.github.miracelwhipp.net.provider.FrameworkVersion;
+import io.github.miracelwhipp.net.provider.NetFrameworkProvider;
 
 import java.io.File;
 

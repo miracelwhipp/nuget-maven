@@ -1,6 +1,6 @@
-package com.github.cs.nuget;
+package io.github.miracelwhipp.net.nuget.plugin;
 
-import com.github.cs.Xml;
+import io.github.miracelwhipp.net.common.Xml;
 
 import javax.xml.transform.Transformer;
 

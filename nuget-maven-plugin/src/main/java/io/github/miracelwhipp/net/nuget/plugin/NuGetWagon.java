@@ -1,9 +1,9 @@
-package com.github.cs.nuget;
+package io.github.miracelwhipp.net.nuget.plugin;
 
-import com.github.cs.FrameworkVersion;
-import com.github.cs.NetFrameworkProvider;
-import com.github.cs.Streams;
-import com.github.cs.Xml;
+import io.github.miracelwhipp.net.provider.FrameworkVersion;
+import io.github.miracelwhipp.net.provider.NetFrameworkProvider;
+import io.github.miracelwhipp.net.common.Streams;
+import io.github.miracelwhipp.net.common.Xml;
 import org.apache.maven.wagon.ConnectionException;
 import org.apache.maven.wagon.ResourceDoesNotExistException;
 import org.apache.maven.wagon.TransferFailedException;

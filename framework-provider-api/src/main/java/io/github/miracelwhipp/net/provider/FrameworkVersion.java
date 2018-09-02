@@ -1,4 +1,4 @@
-package com.github.cs;
+package io.github.miracelwhipp.net.provider;
 
 import java.util.HashMap;
 import java.util.Map;
