@@ -1,2 +1,2 @@
 # cs-maven
-maven plugin that interfaces a c# compiler to bring maven to the .net world
+This maven plugin allows you to compile and test c# code as well as deploy the binaries to maven repositories.
