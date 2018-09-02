@@ -10,9 +10,9 @@
 
 	<name>${project.groupId}:${project.artifactId}</name>
 	<description>
-		This maven plugin allows you to compile and test c# code as well as deploy the binaries to maven repositories.
+		This maven provides a wagon that is capable of downloading nuget artifacts.
 	</description>
-	<url>https://miracelwhipp.github.io/cs-maven/</url>
+	<url>https://miracelwhipp.github.io/nuget-maven/</url>
 
 	<licenses>
 		<license>
