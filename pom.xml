@@ -10,7 +10,7 @@
 
 	<name>${project.groupId}:${project.artifactId}</name>
 	<description>
-		This maven provides a wagon that is capable of downloading nuget artifacts.
+		This maven extension provides a wagon that is capable of downloading nuget artifacts.
 	</description>
 	<url>https://miracelwhipp.github.io/nuget-maven/</url>
 
@@ -35,9 +35,9 @@
 	</properties>
 
 	<scm>
-		<url>https://github.com/miracelwhipp/cs-maven.git</url>
-		<connection>scm:git:https://github.com/miracelwhipp/cs-maven.git</connection>
-		<developerConnection>scm:git:https://github.com/miracelwhipp/cs-maven.git</developerConnection>
+		<url>https://github.com/miracelwhipp/nuget-maven.git</url>
+		<connection>scm:git:https://github.com/miracelwhipp/nuget-maven.git</connection>
+		<developerConnection>scm:git:https://github.com/miracelwhipp/nuget-maven.git</developerConnection>
 		<tag>HEAD</tag>
 	</scm>
 
