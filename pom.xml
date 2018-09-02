@@ -3,8 +3,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>com.github.cs</groupId>
-	<artifactId>cs-maven</artifactId>
+	<groupId>io.github.miracelwhipp.net</groupId>
+	<artifactId>net-cs-maven</artifactId>
 	<version>2.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
@@ -41,7 +41,7 @@
 		<module>nuget-maven-plugin</module>
 		<module>cs-maven-common</module>
 		<module>xunit-runner</module>
-		<module>nunit-runner</module>
+		<!--<module>nunit-runner</module>-->
 		<module>xunit</module>
 	</modules>
 

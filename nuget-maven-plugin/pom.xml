@@ -5,22 +5,23 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>com.github.cs</groupId>
-		<artifactId>cs-maven</artifactId>
+		<groupId>io.github.miracelwhipp.net</groupId>
+		<artifactId>net-cs-maven</artifactId>
 		<version>2.0-SNAPSHOT</version>
 	</parent>
 
+	<groupId>io.github.miracelwhipp.net.nuget.plugin</groupId>
 	<artifactId>nuget-maven-plugin</artifactId>
 
 	<dependencies>
 		<dependency>
-			<groupId>com.github.cs</groupId>
+			<groupId>io.github.miracelwhipp.net.provider</groupId>
 			<artifactId>net-framework-provider-api</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>com.github.cs</groupId>
-			<artifactId>cs-maven-common</artifactId>
+			<groupId>io.github.miracelwhipp.net.common</groupId>
+			<artifactId>net-maven-common</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 
