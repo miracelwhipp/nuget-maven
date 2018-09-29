@@ -13,14 +13,15 @@ public class WagonArtifact {
 
 	private final String groupId;
 	private final String artifactId;
+	private final boolean isMetadata;
 	private final String version;
 	private final String classifier;
 	private final String type;
 
-
-	private WagonArtifact(String groupId, String artifactId, String version, String classifier, String type) {
+	private WagonArtifact(String groupId, String artifactId, boolean isMetadata, String version, String classifier, String type) {
 		this.groupId = groupId;
 		this.artifactId = artifactId;
+		this.isMetadata = isMetadata;
 		this.version = version;
 		this.classifier = classifier;
 		this.type = type;
@@ -46,6 +47,10 @@ public class WagonArtifact {
 		return type;
 	}
 
+	public boolean isMetadata() {
+		return isMetadata;
+	}
+
 	public File getRepositorySubdirectory() {
 
 		return new File(new File(new File(groupIdPath(groupId)), artifactId), version);
@@ -64,10 +69,21 @@ public class WagonArtifact {
 	public static WagonArtifact newInstance(
 			String groupId, String artifactId, String version, String classifier, String type) {
 
+		return newInstance(groupId, artifactId, version, classifier, type, false);
+	}
+
+	public static WagonArtifact newInstance(
+			String groupId,
+			String artifactId,
+			String version,
+			String classifier,
+			String type,
+			boolean isMetadata
+	) {
 		return new WagonArtifact(
 				groupId.toLowerCase(Locale.ENGLISH),
 				artifactId.toLowerCase(Locale.ENGLISH),
-				version.toLowerCase(Locale.ENGLISH),
+				isMetadata, version.toLowerCase(Locale.ENGLISH),
 				classifier.toLowerCase(Locale.ENGLISH),
 				type.toLowerCase(Locale.ENGLISH)
 		);
@@ -95,19 +111,32 @@ public class WagonArtifact {
 			groupId.append(parts[index]);
 		}
 
-		String artifactId = parts[artifactIdPosition];
+		boolean isMetaData = parts[typePosition].equalsIgnoreCase("maven-metadata.xml");
 
-		String version = parts[versionPosition];
+		if (isMetaData) {
+
+			if (first) {
+				first = false;
+			} else {
+				groupId.append(".");
+			}
+
+			groupId.append(parts[artifactIdPosition]);
+		}
 
 		int position = parts[typePosition].lastIndexOf(".");
 
 		String type = parts[typePosition].substring(position + 1);
 
+		String artifactId = isMetaData ? parts[versionPosition] : parts[artifactIdPosition];
+
+		String version = isMetaData ? "" : parts[versionPosition];
+
 		int startClassifier = artifactId.length() + version.length() + 2;
 
-		String classifier = startClassifier > position ? "" : parts[typePosition].substring(startClassifier, position);
+		String classifier = isMetaData | startClassifier > position ? "" : parts[typePosition].substring(startClassifier, position);
 
-		return newInstance(groupId.toString(), artifactId, version, classifier, type);
+		return newInstance(groupId.toString(), artifactId, version, classifier, type, isMetaData);
 	}
 
 	@Override

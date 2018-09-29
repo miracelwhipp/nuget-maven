@@ -43,6 +43,11 @@ public class NugetArtifact {
 		return wagonArtifact.getType();
 	}
 
+	public boolean isMetadata() {
+
+		return wagonArtifact.isMetadata();
+	}
+
 	public WagonArtifact getWagonArtifact() {
 		return wagonArtifact;
 	}
@@ -72,6 +77,11 @@ public class NugetArtifact {
 	}
 
 	public String resourceString() {
+
+		if (isMetadata()) {
+
+			return getGroupId() + "/index.json";
+		}
 
 		if (isSpec()) {
 			return getGroupId() + "/" + getVersion() + "/" + getGroupId() + EXTENSION_SPECIFICATION;

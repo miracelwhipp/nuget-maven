@@ -1,9 +1,12 @@
 package io.github.miracelwhipp.net.nuget.plugin;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.miracelwhipp.net.provider.FrameworkVersion;
 import io.github.miracelwhipp.net.provider.NetFrameworkProvider;
 import io.github.miracelwhipp.net.common.Streams;
 import io.github.miracelwhipp.net.common.Xml;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.maven.wagon.ConnectionException;
 import org.apache.maven.wagon.ResourceDoesNotExistException;
 import org.apache.maven.wagon.TransferFailedException;
@@ -28,6 +31,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.Locale;
@@ -79,6 +83,15 @@ public class NuGetWagon implements Wagon {
 			return;
 		}
 
+		if (nugetArtifact.isMetadata()) {
+
+			File jsonFile = new File(destination.getAbsolutePath() + ".json");
+			downloadManager.getNugetFile(delegate, nugetArtifact, jsonFile);
+
+			transformResult(jsonFile, nugetArtifact, destination);
+			return;
+		}
+
 		NugetArtifact downloadArtifact = nugetArtifact.correspondingDownloadArtifact();
 
 		File downloadPackageFile = downloadPackageFile(downloadArtifact, nugetArtifact, destination);
@@ -101,6 +114,22 @@ public class NuGetWagon implements Wagon {
 		if (nugetArtifact.isNugetFile()) {
 
 			return downloadManager.getIfNewer(delegate, nugetArtifact, destination, timestamp);
+		}
+
+		if (nugetArtifact.isMetadata()) {
+
+			File jsonFile = new File(destination.getAbsolutePath() + ".json");
+
+			boolean result = downloadManager.getIfNewer(delegate, nugetArtifact, jsonFile, timestamp);
+
+			if (!result) {
+
+				return false;
+			}
+
+			transformResult(jsonFile, nugetArtifact, destination);
+
+			return true;
 		}
 
 
@@ -170,6 +199,13 @@ public class NuGetWagon implements Wagon {
 			return;
 		}
 
+		if (nugetArtifact.isMetadata()) {
+
+			transFormToMetaDataXml(nugetArtifact, downloadPackageFile, destination);
+
+			return;
+		}
+
 		if (nugetArtifact.isPom()) {
 
 			transFormToPom(downloadPackageFile, destination);
@@ -188,6 +224,84 @@ public class NuGetWagon implements Wagon {
 
 			extractTool(downloadPackageFile, nugetArtifact, destination);
 		}
+	}
+
+	private void transFormToMetaDataXml(NugetArtifact nugetArtifact, File jsonFile, File destination) throws TransferFailedException {
+
+		try {
+			ObjectMapper mapper = new ObjectMapper();
+
+			NugetMetadata nugetMetadata = mapper.readValue(jsonFile, NugetMetadata.class);
+
+			StringBuilder builder = new StringBuilder();
+
+			builder.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+					"<metadata modelVersion=\"1.1.0\">\n" +
+					"  <groupId>");
+
+			builder.append(nugetArtifact.getGroupId());
+
+			builder.append("</groupId>\n" +
+					"  <artifactId>");
+
+			builder.append(nugetArtifact.getArtifactId());
+
+			builder.append("</artifactId>\n" +
+					"  <versioning>\n");
+
+			if (!nugetMetadata.getVersions().isEmpty()) {
+				builder.append("    <latest>");
+				builder.append(nugetMetadata.getVersions().get(nugetMetadata.getVersions().size() - 1));
+				builder.append("</latest>\n");
+			}
+
+			String releaseVersion = findReleaseVersion(nugetMetadata);
+
+			if (releaseVersion != null) {
+
+				builder.append("    <release>");
+				builder.append(releaseVersion);
+				builder.append("</release>\n");
+			}
+
+			builder.append("    <versions>\n");
+
+			for (String version : nugetMetadata.getVersions()) {
+
+				builder.append("      <version>");
+				builder.append(version);
+				builder.append("</version>\n");
+			}
+
+
+			builder.append("    </versions>\n" +
+//					"    <lastUpdated>20171020062041</lastUpdated>\n" +
+					"  </versioning>\n" +
+					"</metadata>\n");
+
+			FileUtils.write(destination, builder.toString(), StandardCharsets.UTF_8);
+
+		} catch (IOException e) {
+
+			throw new TransferFailedException(e.getMessage(), e);
+		}
+
+	}
+
+	private String findReleaseVersion(NugetMetadata nugetMetadata) {
+
+		for (int index = nugetMetadata.getVersions().size() - 1; index >= 0; index--) {
+
+			String version = nugetMetadata.getVersions().get(index);
+
+			if (version.matches("[0-9]+(\\.[0-9]+)*")) {
+
+				return version;
+			}
+
+		}
+
+		return null;
 	}
 
 	private void extractTool(File downloadPackageFile, NugetArtifact nugetArtifact, File destination) throws TransferFailedException, ResourceDoesNotExistException {
