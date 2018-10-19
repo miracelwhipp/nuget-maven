@@ -31,6 +31,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<xunit.version>2.4.0</xunit.version>
+		<jackson.version>2.9.7</jackson.version>
 	</properties>
 
 	<scm>
@@ -115,12 +116,12 @@
 			<dependency>
 				<groupId>com.fasterxml.jackson.core</groupId>
 				<artifactId>jackson-core</artifactId>
-				<version>2.8.6</version>
+				<version>${jackson.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.fasterxml.jackson.core</groupId>
 				<artifactId>jackson-databind</artifactId>
-				<version>2.8.6</version>
+				<version>${jackson.version}</version>
 			</dependency>
 
 
