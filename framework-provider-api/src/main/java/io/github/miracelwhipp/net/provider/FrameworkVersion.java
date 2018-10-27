@@ -72,6 +72,11 @@ public class FrameworkVersion {
 		return name + major + "." + minor + (patch != 0 ? "." + patch : "");
 	}
 
+	public String mavenVersion() {
+
+		return major + "." + minor + "." + patch;
+	}
+
 	@Override
 	public String toString() {
 		return "FrameworkVersion{" +

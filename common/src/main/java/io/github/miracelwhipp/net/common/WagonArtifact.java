@@ -58,8 +58,19 @@ public class WagonArtifact {
 
 	public File getArtifactFilename() {
 
-		return new File(getRepositorySubdirectory(), artifactId + "-" + version + (classifier.isEmpty() ? "" : "-" + classifier) + "." + type);
+		return new File(getRepositorySubdirectory(), plainFilename());
 	}
+
+	private String plainFilename() {
+		return artifactId + "-" + version + (classifier.isEmpty() ? "" : "-" + classifier) + "." + type;
+	}
+
+	public String mavenResourceString() {
+
+		return groupId.replaceAll("\\.", "/") + "/" + artifactId + "/" + version + "/" +
+				plainFilename();
+	}
+
 
 	private String groupIdPath(String groupId) {
 		return groupId.replaceAll("\\.", Matcher.quoteReplacement(File.separator));

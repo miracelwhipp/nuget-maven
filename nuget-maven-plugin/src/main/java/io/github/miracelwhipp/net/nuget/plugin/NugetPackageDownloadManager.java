@@ -131,6 +131,13 @@ public class NugetPackageDownloadManager {
 
 			try {
 
+				File parentDirectory = wrappedDestination.getParentFile();
+
+				if (!parentDirectory.exists()) {
+
+					parentDirectory.mkdirs();
+				}
+
 				wrappedDestination.createNewFile();
 
 			} catch (IOException e) {
