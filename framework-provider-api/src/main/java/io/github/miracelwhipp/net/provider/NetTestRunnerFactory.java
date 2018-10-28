@@ -15,5 +15,5 @@ public interface NetTestRunnerFactory {
 	 * @param workingDirectory a directory containing the test dlls and their dependencies
 	 * @return a new {@link NetTestRunner} capable of running in the given directory
 	 */
-	NetTestRunner newRunnerForDirectory(File workingDirectory);
+	NetTestRunner newRunnerForDirectory(File workingDirectory, File runtimeWrapperExecutable);
 }
