@@ -16,8 +16,8 @@ import org.codehaus.plexus.component.annotations.Requirement;
 @Component(role = Wagon.class, hint = "nuget", instantiationStrategy = "singleton")
 public class NuGetWagon extends AbstractNugetWagon {
 
-	@Requirement(optional = true)
-	private NetFrameworkProvider frameworkProvider;
+	// temporary fix for guice errors
+	private NetFrameworkProvider frameworkProvider = new BootStrapNetFrameworkProvider();
 
 	@Requirement(hint = "https")
 	private Wagon delegate;
