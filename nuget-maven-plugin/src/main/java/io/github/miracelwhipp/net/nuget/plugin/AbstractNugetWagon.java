@@ -18,6 +18,7 @@ import org.apache.maven.wagon.events.TransferListener;
 import org.apache.maven.wagon.proxy.ProxyInfo;
 import org.apache.maven.wagon.proxy.ProxyInfoProvider;
 import org.apache.maven.wagon.repository.Repository;
+import org.codehaus.plexus.logging.Logger;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -52,16 +53,22 @@ public abstract class AbstractNugetWagon implements Wagon {
 
 	public abstract NetFrameworkProvider getFrameworkProvider();
 
+	public abstract Logger getLogger();
+
 	@Override
 	public synchronized void get(String resourceName, File destination) throws TransferFailedException, ResourceDoesNotExistException, AuthorizationException {
 
+		getLogger().debug("nuget download for " + resourceName + " to " + destination.getAbsolutePath());
+
 		if (resourceName.endsWith(".sha1")) {
 
+			getLogger().debug("resource is sha1 hash. not supported.");
 			throw new ResourceDoesNotExistException("sha1 not supported.");
 		}
 
 		if (resourceName.endsWith(SUFFIX_MD5)) {
 
+			getLogger().debug("resource is md5 hash.");
 			getDownloadManager().getMd5Hash(getRepository(), NugetArtifact.fromMavenResourceString(resourceName.substring(0, resourceName.length() - SUFFIX_MD5.length())), destination);
 			return;
 		}
@@ -70,11 +77,14 @@ public abstract class AbstractNugetWagon implements Wagon {
 
 		if (nugetArtifact.isNugetFile()) {
 
+			getLogger().debug("resource is nuget specific file.");
 			getDownloadManager().getNugetFile(getDelegate(), nugetArtifact, destination);
 			return;
 		}
 
 		if (nugetArtifact.isMetadata()) {
+
+			getLogger().debug("resource is meta data only.");
 
 			File jsonFile = new File(destination.getAbsolutePath() + ".json");
 			getDownloadManager().getNugetFile(getDelegate(), nugetArtifact, jsonFile);
@@ -84,6 +94,8 @@ public abstract class AbstractNugetWagon implements Wagon {
 		}
 
 		NugetArtifact downloadArtifact = nugetArtifact.correspondingDownloadArtifact();
+
+		getLogger().debug("corresponding artifact is " + downloadArtifact);
 
 		File downloadPackageFile = downloadPackageFile(downloadArtifact, nugetArtifact, destination);
 
@@ -95,6 +107,8 @@ public abstract class AbstractNugetWagon implements Wagon {
 	@Override
 	public synchronized boolean getIfNewer(String resourceName, File destination, long timestamp) throws TransferFailedException, ResourceDoesNotExistException, AuthorizationException {
 
+		getLogger().debug("nuget download for " + resourceName + " to " + destination.getAbsolutePath());
+
 		if (resourceName.endsWith(".md5") || resourceName.endsWith(".sha1")) {
 
 			throw new ResourceDoesNotExistException("checksums not supported yet");
@@ -104,10 +118,14 @@ public abstract class AbstractNugetWagon implements Wagon {
 
 		if (nugetArtifact.isNugetFile()) {
 
+			getLogger().debug("resource is nuget specific file.");
+
 			return getDownloadManager().getIfNewer(getDelegate(), nugetArtifact, destination, timestamp);
 		}
 
 		if (nugetArtifact.isMetadata()) {
+
+			getLogger().debug("resource is meta data only.");
 
 			File jsonFile = new File(destination.getAbsolutePath() + ".json");
 
@@ -125,6 +143,8 @@ public abstract class AbstractNugetWagon implements Wagon {
 
 
 		NugetArtifact downloadArtifact = nugetArtifact.correspondingDownloadArtifact();
+
+		getLogger().debug("corresponding artifact is " + downloadArtifact);
 
 		File downloadPackageFile = downloadPackageFile(downloadArtifact, nugetArtifact, destination);
 
@@ -152,8 +172,12 @@ public abstract class AbstractNugetWagon implements Wagon {
 
 		File repositoryDirectory = new File(destinationString.substring(0, artifactPosition));
 
-		return repositoryDirectory.toPath().resolve(
+		File result = repositoryDirectory.toPath().resolve(
 				downloadArtifact.getWagonArtifact().getArtifactFilename().toPath()).toFile();
+
+		getLogger().debug("download package file is " + result.getAbsolutePath());
+
+		return result;
 	}
 
 	private String getGroupIdPath(String groupId) {
@@ -174,12 +198,17 @@ public abstract class AbstractNugetWagon implements Wagon {
 
 	private void transformResult(File downloadPackageFile, NugetArtifact nugetArtifact, File destination) throws TransferFailedException, ResourceDoesNotExistException {
 
+		getLogger().debug("transforming result. downloadPackageFile : " + downloadPackageFile.getAbsolutePath() + " nuget artifact : " + nugetArtifact + " destination " + destination.getAbsolutePath());
+
 		if (nugetArtifact.isNugetFile()) {
 
+			getLogger().debug("artifact is nuget specific file. Nothing to be done.");
 			return;
 		}
 
 		if (nugetArtifact.isMetadata()) {
+
+			getLogger().debug("transforming to meta data xml.");
 
 			transFormToMetaDataXml(nugetArtifact, downloadPackageFile, destination);
 
@@ -188,12 +217,16 @@ public abstract class AbstractNugetWagon implements Wagon {
 
 		if (nugetArtifact.isPom()) {
 
+			getLogger().debug("transforming to pom.");
+
 			transFormToPom(downloadPackageFile, destination);
 
 			return;
 		}
 
 		if (nugetArtifact.getType().equals("dll")) {
+
+			getLogger().debug("extracting library.");
 
 			extractLibrary(downloadPackageFile, nugetArtifact, destination);
 
@@ -202,8 +235,14 @@ public abstract class AbstractNugetWagon implements Wagon {
 
 		if (nugetArtifact.getType().equals("exe")) {
 
+			getLogger().debug("extracting tool.");
+
 			extractTool(downloadPackageFile, nugetArtifact, destination);
+
+			return;
 		}
+
+		getLogger().debug("nothing to be done.");
 	}
 
 	private void transFormToMetaDataXml(NugetArtifact nugetArtifact, File jsonFile, File destination) throws TransferFailedException {

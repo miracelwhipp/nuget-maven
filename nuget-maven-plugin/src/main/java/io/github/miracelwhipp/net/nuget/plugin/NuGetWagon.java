@@ -5,6 +5,7 @@ import org.apache.maven.wagon.Wagon;
 import org.apache.maven.wagon.providers.http.HttpWagon;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
+import org.codehaus.plexus.logging.Logger;
 
 /**
  * This wagon allows downloading dlls deployed in nuget as maven artifacts. It is implemented by simply
@@ -24,6 +25,9 @@ public class NuGetWagon extends AbstractNugetWagon {
 
 	@Requirement
 	private NugetPackageDownloadManager downloadManager;
+
+	@Requirement
+	private Logger logger;
 
 	@Override
 	public Wagon getDelegate() {
@@ -46,5 +50,8 @@ public class NuGetWagon extends AbstractNugetWagon {
 		return frameworkProvider;
 	}
 
-
+	@Override
+	public Logger getLogger() {
+		return logger;
+	}
 }
