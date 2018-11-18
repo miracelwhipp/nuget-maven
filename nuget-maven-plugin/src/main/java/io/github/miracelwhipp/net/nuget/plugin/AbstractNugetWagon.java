@@ -166,7 +166,8 @@ public abstract class AbstractNugetWagon implements Wagon {
 
 		String artifactPath = groupIdPath + File.separator + artifact.getArtifactId() + File.separator + artifact.getVersion();
 
-		String destinationString = destination.getAbsolutePath().toLowerCase(Locale.ENGLISH);
+		String destinationString = destination.getAbsolutePath();
+//		String destinationString = destination.getAbsolutePath().toLowerCase(Locale.ENGLISH);
 
 		int artifactPosition = destinationString.lastIndexOf(artifactPath);
 
@@ -347,8 +348,11 @@ public abstract class AbstractNugetWagon implements Wagon {
 			desiredVersion = FrameworkVersion.defaultVersion();
 		}
 
+		getLogger().debug("desired version is " + desiredVersion.toString());
+
 		try {
 
+			getLogger().debug("unpacking " + downloadPackageFile.getAbsolutePath() + " in order to get file " + nugetArtifact.specificationFile().getAbsolutePath());
 			File specification = Streams.unpackForFile(downloadPackageFile, nugetArtifact.specificationFile());
 
 			File file = findLibrary(nugetArtifact, desiredVersion, specification, specification.getParentFile());

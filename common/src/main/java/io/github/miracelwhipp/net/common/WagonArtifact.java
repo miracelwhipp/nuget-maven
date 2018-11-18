@@ -92,11 +92,16 @@ public class WagonArtifact {
 			boolean isMetadata
 	) {
 		return new WagonArtifact(
-				groupId.toLowerCase(Locale.ENGLISH),
-				artifactId.toLowerCase(Locale.ENGLISH),
-				isMetadata, version.toLowerCase(Locale.ENGLISH),
-				classifier.toLowerCase(Locale.ENGLISH),
-				type.toLowerCase(Locale.ENGLISH)
+				groupId,
+				artifactId,
+				isMetadata, version,
+				classifier,
+				type
+//				groupId.toLowerCase(Locale.ENGLISH),
+//				artifactId.toLowerCase(Locale.ENGLISH),
+//				isMetadata, version.toLowerCase(Locale.ENGLISH),
+//				classifier.toLowerCase(Locale.ENGLISH),
+//				type.toLowerCase(Locale.ENGLISH)
 		);
 	}
 
