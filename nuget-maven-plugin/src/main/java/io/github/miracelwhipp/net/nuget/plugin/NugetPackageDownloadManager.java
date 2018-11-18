@@ -190,6 +190,7 @@ public class NugetPackageDownloadManager {
 
 		if (!artifact.isNugetFile()) {
 
+			logger.debug("hash for files extracted from nuget archive not supported.");
 			throw new ResourceDoesNotExistException("hash for files extracted from nuget archive not supported.");
 		}
 
@@ -205,9 +206,11 @@ public class NugetPackageDownloadManager {
 
 				if (checkSum == null) {
 
+					logger.debug("Content-MD5 header not set");
 					throw new ResourceDoesNotExistException("Content-MD5 header not set");
 				}
 
+				logger.debug("wrting md5 hash to " + destination.getAbsolutePath());
 				FileUtils.write(destination, checkSum.getValue(), StandardCharsets.ISO_8859_1);
 			}
 
