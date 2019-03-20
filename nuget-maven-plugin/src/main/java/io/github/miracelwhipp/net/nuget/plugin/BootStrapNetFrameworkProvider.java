@@ -11,13 +11,14 @@ import java.io.File;
  * @author miracelwhipp
  */
 class BootStrapNetFrameworkProvider implements NetFrameworkProvider {
+
 	@Override
 	public File getFrameworkLibrary(String name) {
 		return null;
 	}
 
 	@Override
-	public FrameworkVersion getFrameworkVersion() {
+	public FrameworkVersion getDefaultFrameworkVersion() {
 		return FrameworkVersion.defaultVersion();
 	}
 }

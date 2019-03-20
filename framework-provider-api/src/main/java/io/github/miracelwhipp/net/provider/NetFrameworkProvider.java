@@ -18,6 +18,12 @@ public interface NetFrameworkProvider {
 	 */
 	File getFrameworkLibrary(String name) throws IOException;
 
-	FrameworkVersion getFrameworkVersion();
+	@Deprecated
+	default FrameworkVersion getFrameworkVersion() {
+
+		return getDefaultFrameworkVersion();
+	}
+
+	FrameworkVersion getDefaultFrameworkVersion();
 
 }
