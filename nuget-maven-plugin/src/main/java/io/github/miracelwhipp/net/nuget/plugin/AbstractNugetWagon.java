@@ -31,7 +31,6 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.List;
-import java.util.Locale;
 import java.util.regex.Matcher;
 
 /**
@@ -47,13 +46,13 @@ public abstract class AbstractNugetWagon implements Wagon {
 	public static final String SUFFIX_MD5 = ".md5";
 	public static final String BUILD_DIRECTORY = "build/";
 
-	public abstract Wagon getDelegate();
+	protected abstract Wagon getDelegate();
 
-	public abstract NugetPackageDownloadManager getDownloadManager();
+	protected abstract NugetPackageDownloadManager getDownloadManager();
 
-	public abstract NetFrameworkProvider getFrameworkProvider();
+	protected abstract Logger getLogger();
 
-	public abstract Logger getLogger();
+	protected abstract FrameworkVersion getDefaultFrameworkVersion();
 
 	@Override
 	public synchronized void get(String resourceName, File destination) throws TransferFailedException, ResourceDoesNotExistException, AuthorizationException {
@@ -220,7 +219,7 @@ public abstract class AbstractNugetWagon implements Wagon {
 
 			getLogger().debug("transforming to pom.");
 
-			transFormToPom(downloadPackageFile, destination);
+			transFormToPom(downloadPackageFile, destination, nugetArtifact);
 
 			return;
 		}
@@ -341,7 +340,7 @@ public abstract class AbstractNugetWagon implements Wagon {
 	private void extractLibrary(File downloadPackageFile, NugetArtifact nugetArtifact, File destination)
 			throws TransferFailedException, ResourceDoesNotExistException {
 
-		FrameworkVersion desiredVersion = getFrameworkProvider().getFrameworkVersion();
+		FrameworkVersion desiredVersion = getFrameworkVersion(nugetArtifact);
 
 		if (desiredVersion == null) {
 
@@ -363,6 +362,18 @@ public abstract class AbstractNugetWagon implements Wagon {
 
 			throw new TransferFailedException(e.getMessage(), e);
 		}
+	}
+
+	private FrameworkVersion getFrameworkVersion(NugetArtifact nugetArtifact) {
+
+		FrameworkVersion result = FrameworkVersion.fromShortName(nugetArtifact.getClassifier());
+
+		if (result == null) {
+
+			return getDefaultFrameworkVersion();
+		}
+
+		return result;
 	}
 
 	private File findLibrary(final NugetArtifact nugetArtifact, final FrameworkVersion desiredVersion,
@@ -486,7 +497,8 @@ public abstract class AbstractNugetWagon implements Wagon {
 				throw new TransferFailedException("cannot delete file " + destination.getAbsolutePath());
 			}
 
-			destination.getParentFile().mkdirs();
+			FileUtils.forceMkdir(destination.getParentFile());
+
 
 			Files.createLink(destination.toPath(), file.toPath());
 
@@ -496,11 +508,11 @@ public abstract class AbstractNugetWagon implements Wagon {
 		}
 	}
 
-	private void transFormToPom(File sourceFile, File destination) throws TransferFailedException {
+	private void transFormToPom(File sourceFile, File destination, NugetArtifact nugetArtifact) throws TransferFailedException {
 
 		try (InputStream source = AbstractNugetWagon.class.getResourceAsStream("/nuspec-to-pom.xsl")) {
 
-			Xml.transformFile(sourceFile, new StreamSource(source), destination, false, new TargetFrameworkParameterSetter(getFrameworkProvider().getFrameworkVersion().versionedFullName()));
+			Xml.transformFile(sourceFile, new StreamSource(source), destination, false, new TargetFrameworkParameterSetter(getFrameworkVersion(nugetArtifact).versionedFullName()));
 
 		} catch (IOException | ParserConfigurationException | TransformerException | SAXException e) {
 

@@ -66,10 +66,7 @@ public class NugetPackageDownloadManager {
 			logger.debug("downloading temp-file " + tempFile.getAbsolutePath());
 			delegate.get(key, tempFile);
 
-			if (!tempFile.renameTo(destination)) {
-
-				throw new TransferFailedException("cannot rename file. source = " + tempFile.getAbsolutePath() + " target = " + destination.getAbsolutePath());
-			}
+			moveFile(destination, tempFile);
 
 			logger.debug("Download done. tempfile renamed to " + destination.getAbsolutePath());
 		}
@@ -125,14 +122,24 @@ public class NugetPackageDownloadManager {
 				return false;
 			}
 
-			if (!tempFile.renameTo(destination)) {
-
-				throw new TransferFailedException("cannot rename file. source = " + tempFile.getAbsolutePath() + " target = " + destination.getAbsolutePath());
-			}
+			moveFile(destination, tempFile);
 
 			logger.debug("Download done. tempfile renamed to " + destination.getAbsolutePath());
 
 			return true;
+		}
+	}
+
+	private void moveFile(File destination, File tempFile) throws TransferFailedException {
+
+		if (destination.exists()) {
+
+			FileUtils.deleteQuietly(destination);
+		}
+
+		if (!tempFile.renameTo(destination)) {
+
+			throw new TransferFailedException("cannot rename file. source = " + tempFile.getAbsolutePath() + " target = " + destination.getAbsolutePath());
 		}
 	}
 
