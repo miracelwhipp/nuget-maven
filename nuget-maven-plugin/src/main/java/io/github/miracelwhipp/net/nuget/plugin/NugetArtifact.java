@@ -3,6 +3,7 @@ package io.github.miracelwhipp.net.nuget.plugin;
 import io.github.miracelwhipp.net.common.WagonArtifact;
 
 import java.io.File;
+import java.util.Locale;
 
 /**
  * This bean holds the information needed to download a package from nuget.
@@ -80,14 +81,14 @@ public class NugetArtifact {
 
 		if (isMetadata()) {
 
-			return getGroupId() + "/index.json";
+			return getGroupId().toLowerCase(Locale.ENGLISH) + "/index.json";
 		}
 
 		if (isSpec()) {
-			return getGroupId() + "/" + getVersion() + "/" + getGroupId() + EXTENSION_SPECIFICATION;
+			return getGroupId().toLowerCase(Locale.ENGLISH) + "/" + getVersion().toLowerCase(Locale.ENGLISH) + "/" + getGroupId().toLowerCase(Locale.ENGLISH) + EXTENSION_SPECIFICATION;
 		}
 
-		return getGroupId() + "/" + getVersion() + "/" + getGroupId() + "." + getVersion() + EXTENSION_PACKAGE;
+		return getGroupId().toLowerCase(Locale.ENGLISH) + "/" + getVersion().toLowerCase(Locale.ENGLISH) + "/" + getGroupId().toLowerCase(Locale.ENGLISH) + "." + getVersion().toLowerCase(Locale.ENGLISH) + EXTENSION_PACKAGE;
 	}
 
 	public String artifactName() {

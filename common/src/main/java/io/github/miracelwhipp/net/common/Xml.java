@@ -134,7 +134,7 @@ public final class Xml {
 			return document.lookupPrefix(namespaceURI);
 		}
 
-		public Iterator<?> getPrefixes(String namespaceURI) {
+		public Iterator<String> getPrefixes(String namespaceURI) {
 			return null;
 		}
 
