@@ -18,17 +18,12 @@ jobs:
           server-id: github
           gpg-private-key: ${{ secrets.PGP_KEY }}
           gpg-passphrase: ${{ secrets.SIGNATURE_PASSWORD }}
-      - name: append settings for github
-        uses: s4u/maven-settings-action@v2.6.0
-        with:
-          servers: '[{"id": "ossrh", "username": "${env.OSSRH_JIRA_USERNAME}", "password": "${env.OSSRH_JIRA_PASSWORD}"}]'
-          override: false
       - name: Configure Git user
         run: |
           git config user.email "actions@github.com"
           git config user.name "GitHub Actions"
       - name: execute maven
-        run: export GPG_TTY=$(tty) && mvn --batch-mode release:prepare release:perform -e
+        run: export GPG_TTY=$(tty) && mvn --global-settings deployment/global-settings.xml --batch-mode release:prepare release:perform -e
         env:
           GPG_KEY_NAME: ${{ secrets.SIGNATURE_KEY_NAME }}
           GPG_PASS_PHRASE: ${{ secrets.SIGNATURE_PASSWORD }}
