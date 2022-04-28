@@ -22,7 +22,7 @@ jobs:
           gpg-private-key: ${{ secrets.PGP_KEY }}
           gpg-passphrase: ${{ secrets.SIGNATURE_PASSWORD }}
       - name: execute maven
-        run: export GPG_TTY=$(tty) && mvn --batch-mode deploy -X
+        run: export GPG_TTY=$(tty) && mvn --batch-mode deploy -e
         env:
           GPG_KEY_NAME: ${{ secrets.SIGNATURE_KEY_NAME }}
           GPG_PASS_PHRASE: ${{ secrets.SIGNATURE_PASSWORD }}
