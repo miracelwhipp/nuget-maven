@@ -2,7 +2,7 @@ name: deploy default branch
 
 on:
   push:
-    branches: [ $default-branch ]
+    branches: [ master ]
 
 
 jobs:
