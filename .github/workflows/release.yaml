@@ -1,0 +1,29 @@
+name: release default branch
+
+on:
+  workflow_dispatch
+
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: set up jdk
+        uses: actions/setup-java@v3
+        with:
+          java-version: '8'
+          distribution: 'temurin'
+          cache: maven
+          server-id: ossrh
+          server-username: OSSRH_JIRA_USERNAME
+          server-password: OSSRH_JIRA_PASSWORD
+          gpg-private-key: ${{ secrets.PGP_KEY }}
+          gpg-passphrase: ${{ secrets.SIGNATURE_PASSWORD }}
+      - name: execute maven
+        run: export GPG_TTY=$(tty) && mvn --batch-mode release:prepare release:perform -e
+        env:
+          GPG_KEY_NAME: ${{ secrets.SIGNATURE_KEY_NAME }}
+          GPG_PASS_PHRASE: ${{ secrets.SIGNATURE_PASSWORD }}
+          OSSRH_JIRA_USERNAME: ${{ secrets.OSSRH_JIRA_USERNAME }}
+          OSSRH_JIRA_PASSWORD: ${{ secrets.OSSRH_JIRA_PASSWORD }}
