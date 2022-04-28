@@ -20,4 +20,4 @@ jobs:
           distribution: 'temurin'
           cache: maven
       - name: execute maven
-        run: mvn -B install
+        run: mvn --batch-mode install -e
