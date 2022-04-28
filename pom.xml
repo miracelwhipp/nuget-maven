@@ -227,6 +227,10 @@
 								<configuration>
 									<keyname>${env.GPG_KEY_NAME}</keyname>
 									<passphrase>${env.GPG_PASS_PHRASE}</passphrase>
+									<gpgArguments>
+										<arg>--pinentry-mode</arg>
+										<arg>loopback</arg>
+									</gpgArguments>
 								</configuration>
 							</execution>
 						</executions>
