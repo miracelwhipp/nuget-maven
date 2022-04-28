@@ -211,7 +211,7 @@
 			<id>sign</id>
 			<activation>
 				<property>
-					<name>gpg.keyname</name>
+					<name>env.GPG_KEY_NAME</name>
 				</property>
 			</activation>
 
@@ -224,6 +224,10 @@
 								<goals>
 									<goal>sign</goal>
 								</goals>
+								<configuration>
+									<keyname>${env.GPG_KEY_NAME}</keyname>
+									<passphrase>${env.GPG_PASS_PHRASE}</passphrase>
+								</configuration>
 							</execution>
 						</executions>
 					</plugin>
