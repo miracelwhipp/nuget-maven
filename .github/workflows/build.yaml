@@ -21,3 +21,7 @@ jobs:
           cache: maven
       - name: execute maven
         run: mvn --batch-mode install -e
+      - name: debug
+        run: echo $HELLO_WORLD
+        env:
+          HELLO_WORLD: $default-branch
