@@ -20,6 +20,11 @@ jobs:
           server-password: OSSRH_JIRA_PASSWORD
           gpg-private-key: ${{ secrets.PGP_KEY }}
           gpg-passphrase: ${{ secrets.SIGNATURE_PASSWORD }}
+      - name: append settings for github
+        uses: s4u/maven-settings-action@v2.6.0
+        with:
+          servers: '[{"id": "github", "username": "${{ github.actor }}", "password": "${{ github.token }}"}]'
+          override: false
       - name: execute maven
         run: export GPG_TTY=$(tty) && mvn --batch-mode release:prepare release:perform -e
         env:
@@ -27,3 +32,4 @@ jobs:
           GPG_PASS_PHRASE: ${{ secrets.SIGNATURE_PASSWORD }}
           OSSRH_JIRA_USERNAME: ${{ secrets.OSSRH_JIRA_USERNAME }}
           OSSRH_JIRA_PASSWORD: ${{ secrets.OSSRH_JIRA_PASSWORD }}
+
