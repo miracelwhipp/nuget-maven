@@ -24,5 +24,5 @@ jobs:
       - name: execute maven
         run: export GPG_TTY=$(tty) && mvn --batch-mode deploy -e
         env:
-          GPG_KEY_NAME: ${{ secrets.SIGNATURE_KEY_NAME }}
+          GPG_KEY_NAME: ${{ secrets.SIGNATURE_KEY_NAME }}ttt
           GPG_PASS_PHRASE: ${{ secrets.SIGNATURE_PASSWORD }}
