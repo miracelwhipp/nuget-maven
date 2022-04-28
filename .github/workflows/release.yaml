@@ -15,16 +15,18 @@ jobs:
           java-version: '8'
           distribution: 'temurin'
           cache: maven
-          server-id: ossrh
-          server-username: OSSRH_JIRA_USERNAME
-          server-password: OSSRH_JIRA_PASSWORD
+          server-id: github
           gpg-private-key: ${{ secrets.PGP_KEY }}
           gpg-passphrase: ${{ secrets.SIGNATURE_PASSWORD }}
       - name: append settings for github
         uses: s4u/maven-settings-action@v2.6.0
         with:
-          servers: '[{"id": "github", "username": "${{ github.actor }}", "password": "${{ github.token }}"}]'
+          servers: '[{"id": "ossrh", "username": "${env.OSSRH_JIRA_USERNAME}", "password": "${env.OSSRH_JIRA_PASSWORD}"}]'
           override: false
+      - name: Configure Git user
+        run: |
+          git config user.email "actions@github.com"
+          git config user.name "GitHub Actions"
       - name: execute maven
         run: export GPG_TTY=$(tty) && mvn --batch-mode release:prepare release:perform -e
         env:
