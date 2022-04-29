@@ -1,11 +1,11 @@
-name: release default branch
+name: release
 
 on:
   workflow_dispatch
 
 
 jobs:
-  build:
+  release:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -22,7 +22,7 @@ jobs:
         run: |
           git config user.email "actions@github.com"
           git config user.name "GitHub Actions"
-      - name: execute maven
+      - name: maven release
         run: export GPG_TTY=$(tty) && mvn --global-settings deployment/global-settings.xml --batch-mode release:prepare release:perform -e
         env:
           GPG_KEY_NAME: ${{ secrets.SIGNATURE_KEY_NAME }}
