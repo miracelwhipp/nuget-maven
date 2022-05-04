@@ -1,0 +1,7 @@
+= nuget-maven
+
+image:https://github.com/miracelwhipp/nuget-maven/actions/workflows/deploy-default-branch.yaml/badge.svg?branch=master)[Build status, link=https://github.com/miracelwhipp/nuget-maven/actions/workflows/deploy-default-branch.yaml]
+image:https://maven-badges.herokuapp.com/maven-central/io.github.miracelwhipp.net.nuget/net-nuget-maven/badge.svg?style=flat[Maven Central,link=https://maven-badges.herokuapp.com/maven-central/io.github.miracelwhipp.net.nuget/net-nuget-maven]
+
+
+This maven plugin provides a wagon that is capable of downloading nuget artifacts.
