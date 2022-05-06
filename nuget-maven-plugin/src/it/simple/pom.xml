@@ -33,7 +33,7 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>io.github.miracelwhipp.net.nuget</groupId>
+                <groupId>io.github.miracelwhipp.net.nuget.plugin</groupId>
                 <artifactId>nuget-maven-plugin</artifactId>
                 <version>@project.version@</version>
                 <extensions>true</extensions>
