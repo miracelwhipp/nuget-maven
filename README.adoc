@@ -4,4 +4,34 @@ image:https://github.com/miracelwhipp/nuget-maven/actions/workflows/deploy-defau
 image:https://maven-badges.herokuapp.com/maven-central/io.github.miracelwhipp.net.nuget/net-nuget-maven/badge.svg?style=flat[Maven Central,link=https://maven-badges.herokuapp.com/maven-central/io.github.miracelwhipp.net.nuget/net-nuget-maven]
 
 
-This maven plugin provides a wagon that is capable of downloading nuget artifacts.
+This maven plugin provides a wagon that is capable of downloading nuget artifacts. It is mainly intended to be used
+with the https://github.com/miracelwhipp/cs-maven[c# maven plugin], however it can be used without it. It provides a
+wagon capable of to download packages from nuget that are specified as dependencies. For this to work the plugin
+needs to activated with extensions:
+
+[source,xml]
+----
+include::nuget-maven-plugin/src/it/simple/pom.xml[tag=plugin]
+----
+
+and nuget needs to be added to the projects repositories:
+[source,xml]
+----
+include::nuget-maven-plugin/src/it/simple/pom.xml[tag=repository]
+----
+
+Note that the url starts with nuget. This is mavens hint to activate the nuget-maven-plugins wagon to
+contact `api.nuget.org/v3-flatcontainer`. Now a dependency can be specified that references an artifact from nuget,
+for example newtonsoft.json:
+
+[source,xml]
+----
+include::nuget-maven-plugin/src/it/simple/pom.xml[tag=dependency]
+----
+
+Since maven artifacts have a `groupId` and an `artifactId` and nuget artifacts simply have an id, it is good practive to write the same to groupId and artifactId, however only the groupId is
+important - the artifactId gets ignored. As a result the dependency above will instruct the plugin to download
+newtonsonft.json in version 12.0.1 from nuget to the local maven repository. In fact it will do a little more: it
+will download the complete nupk-package and unpack the dll.
+
+
