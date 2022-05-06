@@ -99,6 +99,7 @@
                     </goals>
                     <showErrors>true</showErrors>
                     <debug>true</debug>
+                    <streamLogs>true</streamLogs>
                 </configuration>
                 <executions>
                     <execution>
