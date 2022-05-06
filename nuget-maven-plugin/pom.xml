@@ -98,7 +98,7 @@
                         <goal>install</goal>
                     </goals>
                     <showErrors>true</showErrors>
-                    <debug>false</debug>
+                    <debug>true</debug>
                 </configuration>
                 <executions>
                     <execution>
