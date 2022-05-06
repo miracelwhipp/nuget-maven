@@ -11,13 +11,26 @@ needs to activated with extensions:
 
 [source,xml]
 ----
-include::nuget-maven-plugin/src/it/simple/pom.xml[tag=plugin]
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>io.github.miracelwhipp.net.nuget.plugin</groupId>
+                <artifactId>nuget-maven-plugin</artifactId>
+                <version>${project.version}</version>
+                <extensions>true</extensions>
+            </plugin>
 ----
 
 and nuget needs to be added to the projects repositories:
 [source,xml]
 ----
-include::nuget-maven-plugin/src/it/simple/pom.xml[tag=repository]
+    <repositories>
+        <repository>
+            <id>nuget</id>
+            <name>microsoft nuget repository</name>
+            <url>nuget://api.nuget.org/v3-flatcontainer/</url>
+        </repository>
+    </repositories>
 ----
 
 Note that the url starts with nuget. This is mavens hint to activate the nuget-maven-plugins wagon to
@@ -26,7 +39,14 @@ for example newtonsoft.json:
 
 [source,xml]
 ----
-include::nuget-maven-plugin/src/it/simple/pom.xml[tag=dependency]
+    <dependencies>
+        <dependency>
+            <groupId>Newtonsoft.Json</groupId>
+            <artifactId>Newtonsoft.Json</artifactId>
+            <version>12.0.1</version>
+            <type>dll</type>
+        </dependency>
+    </dependencies>
 ----
 
 Since maven artifacts have a `groupId` and an `artifactId` and nuget artifacts simply have an id, it is good practive to write the same to groupId and artifactId, however only the groupId is
