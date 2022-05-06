@@ -49,7 +49,8 @@ for example newtonsoft.json:
     </dependencies>
 ----
 
-Since maven artifacts have a `groupId` and an `artifactId` and nuget artifacts simply have an id, it is good practive to write the same to groupId and artifactId, however only the groupId is
+Since maven artifacts have a `groupId` and an `artifactId` and nuget artifacts simply have an id, it is good practice
+writing the same to groupId and artifactId, however only the groupId is
 important - the artifactId gets ignored. As a result the dependency above will instruct the plugin to download
 newtonsonft.json in version 12.0.1 from nuget to the local maven repository. In fact it will do a little more: it
 will download the complete nupk-package and unpack the dll.
